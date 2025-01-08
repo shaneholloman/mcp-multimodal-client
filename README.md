@@ -125,13 +125,11 @@ graph TD
 
 4. Configure environment variables:
 
-   - Copy `.env.example` to `.env`
-   - Set up required API keys and configurations:
+   - create `.env`
+   - Set up required API keys:
 
    ```env
    VITE_GEMINI_API_KEY=your_api_key
-   VITE_MCP_SERVER_URL=ws://localhost:3000
-   VITE_AUDIO_SAMPLE_RATE=16000
    ```
 
 5. Start the development server:
