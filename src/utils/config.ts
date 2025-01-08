@@ -37,16 +37,23 @@ const defaultConfig = {
 
 export async function readAgentConfig(): Promise<{ agents: AgentConfig[] }> {
   try {
-    const response = await fetch("/config/agent.config.json");
+    const response = await fetch("/api/config/agent");
+    if (!response.ok) {
+      throw new Error(
+        `Failed to read agent configuration: ${response.statusText}`
+      );
+    }
     const data = await response.json();
 
     // Migrate agents to include config field if missing
-    const migratedAgents = data.agents.map((agent: Partial<AgentConfig>) => ({
-      ...agent,
-      config: agent.config || defaultConfig,
-      tools: agent.tools || [],
-      dependencies: agent.dependencies || [],
-    }));
+    const migratedAgents = (data.agents || []).map(
+      (agent: Partial<AgentConfig>) => ({
+        ...agent,
+        config: agent.config || defaultConfig,
+        tools: agent.tools || [],
+        dependencies: agent.dependencies || [],
+      })
+    );
 
     return { agents: migratedAgents };
   } catch (error) {

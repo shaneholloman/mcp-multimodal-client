@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2025-01-08
+
+### Added
+
+- Added GET endpoint for `/api/config/agent` with proper error handling
+- Added CORS support for API endpoints
+- Added strict port configuration for dev and preview servers
+
+### Changed
+
+- Updated config API endpoint from `/config/agent.config.json` to `/api/config/agent`
+- Enhanced error handling and validation in config loading
+- Improved API middleware with better error responses
+- Removed compiled vite config files in favor of TypeScript source
+
 ## [0.3.4] - 2025-01-08
 
 ### Changed
