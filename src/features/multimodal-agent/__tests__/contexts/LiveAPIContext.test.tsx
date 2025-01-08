@@ -269,43 +269,4 @@ describe("LiveAPIProvider", () => {
       });
     });
   });
-
-  it("handles filesystem tool separately", async () => {
-    const mockUseMapWithFilesystem = vi.fn().mockReturnValue({
-      clients: {
-        filesystem: {
-          connectionStatus: "connected",
-          tools: [],
-        },
-      },
-      executeTool: vi.fn().mockResolvedValue({ result: "success" }),
-    });
-
-    vi.mocked(useMcp).mockImplementation(mockUseMapWithFilesystem);
-
-    const TestComponent = () => {
-      const { executeToolAction } = useLiveAPIContext();
-
-      useEffect(() => {
-        executeToolAction?.("list_directory", { path: "/test" });
-      }, [executeToolAction]);
-
-      return <div>Test Component</div>;
-    };
-
-    renderWithProviders(
-      <LiveAPIProvider>
-        <TestComponent />
-      </LiveAPIProvider>
-    );
-
-    const { executeTool } = useMcp();
-
-    await waitFor(() => {
-      expect(executeTool).toHaveBeenCalledWith("filesystem", {
-        name: "list_directory",
-        args: { path: "/test" },
-      });
-    });
-  });
 });

@@ -48,9 +48,9 @@ const wrapper = ({ children }: { children: ReactNode }) => {
       serverConfig: {
         key: "filesystem",
         label: "Filesystem",
-        icon: mcpConfig.defaults.serverTypes.stdio.icon,
+        icon: mcpConfig.mcpServers.filesystem.metadata.icon,
         color: "primary",
-        description: mcpConfig.defaults.serverTypes.stdio.description,
+        description: mcpConfig.mcpServers.filesystem.metadata.description,
         serverId: "filesystem",
       },
     },

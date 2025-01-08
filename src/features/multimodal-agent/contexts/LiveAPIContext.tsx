@@ -33,38 +33,36 @@ export const LiveAPIProvider: FC<LiveAPIProviderProps> = ({ children }) => {
         return acc;
       }, []);
 
+    console.log("Available tools:", availableTools);
+
     // Check if the tool is available in any MCP client
     const mcpTool = availableTools.find((tool) => tool.name === toolName);
+    console.log("Found tool:", mcpTool);
+
     if (mcpTool) {
-      // Find which client has this tool
       const clientWithTool = Object.entries(clients).find(
         ([, client]) =>
           client.connectionStatus === "connected" &&
           client.tools?.some((tool) => tool.name === toolName)
       );
+      console.log("Client with tool:", clientWithTool);
 
       if (clientWithTool) {
+        console.log("Executing tool with client:", clientWithTool[0]);
         return await executeTool(clientWithTool[0], { name: toolName, args });
       }
     }
-
-    // Special handling for filesystem tools
-    if (toolName === "list_directory") {
-      const filesystemClient = Object.entries(clients).find(
-        ([id, client]) =>
-          id === "filesystem" && client.connectionStatus === "connected"
-      );
-      if (filesystemClient) {
-        return await executeTool(filesystemClient[0], {
-          name: toolName,
-          args,
-        });
-      }
-    }
+    return undefined; // Explicitly return undefined when tool is not found
   };
 
   const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
   const liveAPI = useLiveAPI({ url });
+
+  console.log("LiveAPIProvider - Creating context with:", {
+    liveAPI,
+    executeToolAction,
+    clients,
+  });
 
   return (
     <LiveAPIContext.Provider
