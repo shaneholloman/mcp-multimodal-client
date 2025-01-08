@@ -168,7 +168,7 @@ export function ServerCapabilities({ info }: ServerCapabilitiesProps) {
             icon={CATEGORY_ICONS[groupName as keyof typeof CATEGORY_ICONS]}
             className="w-5 h-5"
           />
-          <h4 className="text-md font-semibold">{groupName}</h4>
+          <h4 className="text-md ">{groupName}</h4>
         </div>
         <div className="flex flex-wrap gap-2 pl-7">
           {sortedCapabilities.map(

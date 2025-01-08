@@ -30,6 +30,24 @@
   }
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Zepto";
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+p,
+span,
+button {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 /* For WebKit browsers */
 
 ::-webkit-scrollbar {

@@ -80,7 +80,7 @@ export function ToolCard({
       <CardBody>
         <div className="flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">
-            {name && <h3 className="text-lg font-semibold">{name}</h3>}
+            {name && <h3 className="text-lg ">{name}</h3>}
             <Chip size="sm" variant="flat" color="primary">
               {type}
             </Chip>

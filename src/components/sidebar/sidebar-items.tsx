@@ -74,7 +74,7 @@ export function useSidebarItems() {
           label: "Create Agent",
           icon: "solar:add-circle-line-duotone",
           description: "Create a new agent",
-          href: "/agent",
+          href: "/agent/create",
           color: "primary",
         },
       ],

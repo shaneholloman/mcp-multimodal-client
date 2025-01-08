@@ -15,51 +15,48 @@ import { AgentRegistryProvider } from "./features/agent-registry";
 import { LiveAPIProvider } from "./features/multimodal-agent/contexts/LiveAPIContext";
 import Layout from "./components/Layout/Layout";
 import SettingsPage from "./pages/SettingsPage";
-import AgentPage from "./pages/AgentPage";
-import AgentsPage from "./pages/AgentsPage";
-import AgentExecutePage from "./pages/AgentExecutePage";
+import AgentEditorPage from "./pages/AgentEditorPage";
+import AgentGalleryPage from "./pages/AgentGalleryPage";
 import LoggerPage from "./pages/LoggerPage";
 import { ServerPage } from "./pages/ServerPage";
 
 export default function App() {
   return (
     <NextUIProvider>
-      <div className="dark text-foreground bg-background min-h-screen">
+      <Router>
         <LlmRegistryProvider>
           <GeminiProvider>
             <GlobalLlmProvider>
               <McpProvider>
                 <AgentRegistryProvider>
                   <LiveAPIProvider>
-                    <Router>
-                      <Layout>
-                        <Routes>
-                          <Route path="/" element={<AgentsPage />} />
-                          <Route path="/settings" element={<SettingsPage />} />
-                          <Route path="/agent" element={<AgentPage />} />
-                          <Route
-                            path="/agent/:id"
-                            element={<AgentExecutePage />}
-                          />
-                          <Route path="/logs" element={<LoggerPage />} />
-                          <Route
-                            path="/servers/:serverId"
-                            element={<ServerPage />}
-                          />
-                          <Route
-                            path="*"
-                            element={<Navigate to="/" replace />}
-                          />
-                        </Routes>
-                      </Layout>
-                    </Router>
+                    <Layout>
+                      <Routes>
+                        <Route path="/" element={<AgentGalleryPage />} />
+                        <Route
+                          path="/agent/create"
+                          element={<AgentEditorPage />}
+                        />
+                        <Route
+                          path="/agent/edit/:id"
+                          element={<AgentEditorPage />}
+                        />
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/logs" element={<LoggerPage />} />
+                        <Route
+                          path="/servers/:serverId"
+                          element={<ServerPage />}
+                        />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </Layout>
                   </LiveAPIProvider>
                 </AgentRegistryProvider>
               </McpProvider>
             </GlobalLlmProvider>
           </GeminiProvider>
         </LlmRegistryProvider>
-      </div>
+      </Router>
     </NextUIProvider>
   );
 }

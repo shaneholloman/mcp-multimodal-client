@@ -64,7 +64,7 @@ export function PageSection({
           <div>
             {title &&
               (typeof title === "string" ? (
-                <h2 className="text-xl font-semibold">{title}</h2>
+                <h2 className="text-xl ">{title}</h2>
               ) : (
                 title
               ))}

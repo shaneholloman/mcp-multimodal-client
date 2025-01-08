@@ -77,9 +77,7 @@ export function ContentModal({
               <div className="space-y-6">
                 {sections.map((section, index) => (
                   <div key={index}>
-                    <h3 className="text-lg font-semibold mb-2">
-                      {section.title}
-                    </h3>
+                    <h3 className="text-lg  mb-2">{section.title}</h3>
                     {renderContent(section)}
                   </div>
                 ))}

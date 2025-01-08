@@ -60,7 +60,7 @@ export default function SettingsPage() {
         <div className="flex items-center gap-2 mb-2">
           <Icon icon={getServerIcon()} className="w-5 h-5 text-primary" />
           <div className="flex items-center gap-2 flex-1">
-            <p className="text-sm font-semibold">{name}</p>
+            <p className="text-sm ">{name}</p>
             <Chip
               size="sm"
               variant="flat"
@@ -162,7 +162,7 @@ export default function SettingsPage() {
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <p className="text-md font-semibold">Voice Configuration</p>
+                <p className="text-md ">Voice Configuration</p>
                 <Chip size="sm" color="primary" variant="dot">
                   System
                 </Chip>
@@ -181,9 +181,7 @@ export default function SettingsPage() {
 
           <div className="flex flex-col gap-4">
             <div>
-              <h3 className="text-md font-semibold mb-2">
-                Model Configuration
-              </h3>
+              <h3 className="text-md  mb-2">Model Configuration</h3>
               <div className="bg-default-50 p-4 rounded-lg">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
@@ -191,7 +189,7 @@ export default function SettingsPage() {
                       icon="solar:cpu-line-duotone"
                       className="w-4 h-4 text-default-600"
                     />
-                    <p className="text-sm font-semibold">Model:</p>
+                    <p className="text-sm ">Model:</p>
                     <code className="text-sm">{voiceConfig.model}</code>
                   </div>
                   <div className="flex items-center gap-2">
@@ -199,7 +197,7 @@ export default function SettingsPage() {
                       icon="solar:microphone-3-line-duotone"
                       className="w-4 h-4 text-default-600"
                     />
-                    <p className="text-sm font-semibold">Voice:</p>
+                    <p className="text-sm ">Voice:</p>
                     <code className="text-sm">
                       {voiceConfig?.generationConfig?.speechConfig?.voiceConfig
                         ?.prebuiltVoiceConfig?.voiceName || "Not configured"}
@@ -210,7 +208,7 @@ export default function SettingsPage() {
                       icon="solar:chat-square-code-line-duotone"
                       className="w-4 h-4 text-default-600"
                     />
-                    <p className="text-sm font-semibold">Response Type:</p>
+                    <p className="text-sm ">Response Type:</p>
                     <code className="text-sm">
                       {voiceConfig?.generationConfig?.responseModalities ||
                         "Not configured"}
@@ -223,9 +221,7 @@ export default function SettingsPage() {
             <Divider />
 
             <div>
-              <h3 className="text-md font-semibold mb-2">
-                System Instructions
-              </h3>
+              <h3 className="text-md  mb-2">System Instructions</h3>
               <div className="bg-default-50 p-4 rounded-lg">
                 <pre className="text-sm whitespace-pre-wrap font-mono">
                   {voiceConfig?.systemInstruction?.parts[0]?.text ||
@@ -237,7 +233,7 @@ export default function SettingsPage() {
             <Divider />
 
             <div>
-              <h3 className="text-md font-semibold mb-2">Available Tools</h3>
+              <h3 className="text-md  mb-2">Available Tools</h3>
               <div className="bg-default-50 p-4 rounded-lg">
                 <div className="flex flex-wrap gap-2">
                   {voiceConfig?.tools?.map((tool, index) => (
@@ -271,7 +267,7 @@ export default function SettingsPage() {
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <p className="text-md font-semibold">Server Configuration</p>
+                <p className="text-md ">Server Configuration</p>
                 <Chip size="sm" color="primary" variant="dot">
                   System
                 </Chip>
@@ -295,7 +291,7 @@ export default function SettingsPage() {
 
           <div className="flex flex-col gap-4">
             <div>
-              <h3 className="text-md font-semibold mb-2">Available Servers</h3>
+              <h3 className="text-md  mb-2">Available Servers</h3>
               <div className="flex flex-col gap-2">
                 {config &&
                   Object.entries(config.sse).map(([name, serverConfig]) =>
@@ -319,9 +315,7 @@ export default function SettingsPage() {
             <Divider />
 
             <div>
-              <h3 className="text-md font-semibold mb-2">
-                Server Configuration
-              </h3>
+              <h3 className="text-md  mb-2">Server Configuration</h3>
               <p className="text-sm text-default-500 mb-4">
                 To add or modify servers, edit the configuration file with your
                 server details:
@@ -365,7 +359,7 @@ export default function SettingsPage() {
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <p className="text-md font-semibold">User Settings</p>
+                <p className="text-md ">User Settings</p>
                 <Chip size="sm" color="primary" variant="dot">
                   Pro
                 </Chip>
@@ -386,7 +380,7 @@ export default function SettingsPage() {
                 src="https://i.pravatar.cc/150?u=a04258114e29026708c"
               />
               <div className="flex flex-col gap-1">
-                <p className="text-md font-semibold">John Doe</p>
+                <p className="text-md ">John Doe</p>
                 <p className="text-small text-default-500">
                   john.doe@example.com
                 </p>
@@ -397,7 +391,7 @@ export default function SettingsPage() {
           <Divider />
 
           <div>
-            <h3 className="text-md font-semibold mb-2">Subscription</h3>
+            <h3 className="text-md  mb-2">Subscription</h3>
             <p className="text-sm text-default-500 mb-4">
               Manage your subscription plan and billing
             </p>

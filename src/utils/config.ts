@@ -59,7 +59,7 @@ export async function writeAgentConfig(config: {
   agents: AgentConfig[];
 }): Promise<void> {
   try {
-    const response = await fetch("/config/agent.config.json", {
+    const response = await fetch("/api/config/agent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

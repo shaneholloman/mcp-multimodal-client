@@ -58,7 +58,7 @@ export function ServerInfo({ info }: ServerInfoProps) {
 
     return (
       <div key={groupName} className="space-y-2">
-        <h4 className="text-md font-semibold">{groupName}</h4>
+        <h4 className="text-md ">{groupName}</h4>
         <div className="flex flex-wrap gap-2">
           {enabledCapabilities.map(({ key, description }) => (
             <Chip
@@ -139,7 +139,7 @@ export function ServerInfo({ info }: ServerInfoProps) {
     >
       {info && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h3 className="text-lg  mb-4 flex items-center gap-2">
             <Icon icon="solar:widget-2-line-duotone" className="w-5 h-5" />
             Server Capabilities
           </h3>

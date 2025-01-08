@@ -34,7 +34,7 @@ export function LlmConfigCard({
           />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <p className="text-md font-semibold">LLM Provider</p>
+              <p className="text-md ">LLM Provider</p>
               {provider && (
                 <Chip
                   size="sm"

@@ -114,7 +114,7 @@ export function BaseCard({
               <div>
                 {title &&
                   (typeof title === "string" ? (
-                    <h3 className="text-lg font-semibold">{title}</h3>
+                    <h3 className="text-lg ">{title}</h3>
                   ) : (
                     title
                   ))}

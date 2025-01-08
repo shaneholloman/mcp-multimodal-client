@@ -61,10 +61,7 @@ export function ExecutionHistoryCard({ type }: ExecutionHistoryCardProps) {
               data-testid="execution-log-entry"
             >
               <div className="flex items-start justify-between gap-2">
-                <h3
-                  className="text-lg font-semibold"
-                  data-testid="execution-log-name"
-                >
+                <h3 className="text-lg " data-testid="execution-log-name">
                   {log.name}
                 </h3>
                 <div
@@ -81,7 +78,7 @@ export function ExecutionHistoryCard({ type }: ExecutionHistoryCardProps) {
                   className="flex flex-col gap-1"
                   data-testid="execution-log-params"
                 >
-                  <h4 className="text-sm font-semibold">Parameters</h4>
+                  <h4 className="text-sm ">Parameters</h4>
                   <pre className="text-xs text-default-500 whitespace-pre-wrap">
                     {formatValue(log.params as Record<string, unknown>)}
                   </pre>
@@ -92,7 +89,7 @@ export function ExecutionHistoryCard({ type }: ExecutionHistoryCardProps) {
                   className="flex flex-col gap-1"
                   data-testid="execution-log-result"
                 >
-                  <h4 className="text-sm font-semibold">Result</h4>
+                  <h4 className="text-sm ">Result</h4>
                   <pre className="text-xs text-default-500 whitespace-pre-wrap">
                     {formatValue(log.result)}
                   </pre>
@@ -103,7 +100,7 @@ export function ExecutionHistoryCard({ type }: ExecutionHistoryCardProps) {
                   className="flex flex-col gap-1"
                   data-testid="execution-log-error"
                 >
-                  <h4 className="text-sm font-semibold text-danger">Error</h4>
+                  <h4 className="text-sm  text-danger">Error</h4>
                   <pre className="text-xs text-danger whitespace-pre-wrap">
                     {log.error}
                   </pre>
