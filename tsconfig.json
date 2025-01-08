@@ -16,6 +16,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "outDir": "build/dist",
+    "incremental": true,
+    "tsBuildInfoFile": "build/.tsbuildinfo",
     "paths": {
       "@/*": ["src/*"],
       "@config/*": ["config/*"]

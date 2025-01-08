@@ -5,12 +5,18 @@ proxy/node_modules/**
 **/node_modules
 
 # Build output
+build/
 dist/
 /dist
 **/dist
+/build
+**/build
+
+# TypeScript build info
 *.tsbuildinfo
-tsconfig.tsbuildinfo
-tsconfig.node.tsbuildinfo
+**/*.tsbuildinfo
+.tsbuildinfo
+build/**/*.tsbuildinfo
 
 # Configuration files - ignore everything in these directories first
 /config/*
