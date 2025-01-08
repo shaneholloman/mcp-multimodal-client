@@ -113,7 +113,9 @@ describe("useSidebarItems", () => {
     const stdioServer = serverSection?.items.find(
       (item) => item.serverId === "filesystem"
     );
-    expect(stdioServer?.icon).toBe(mcpConfig.defaults.serverTypes.stdio.icon);
+    expect(stdioServer?.icon).toBe(
+      mcpConfig.mcpServers.filesystem.metadata.icon
+    );
 
     // Test disconnected server (systempromptLocal)
     const disconnectedServer = serverSection?.items.find(

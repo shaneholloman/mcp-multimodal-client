@@ -66,9 +66,26 @@ vi.mock("@nextui-org/react", async () => {
           : children}
       </div>
     )),
-    Input: vi.fn(({ label, "data-testid": testId, ...props }) => (
-      <input data-testid={testId} aria-label={label} {...props} />
-    )),
+    Input: vi.fn(
+      ({
+        label,
+        "data-testid": testId,
+        isRequired,
+        errorMessage,
+        isInvalid,
+        ...props
+      }) => {
+        const attrs = {
+          "data-testid": testId,
+          "aria-label": label,
+          ...props,
+        };
+        if (isRequired) attrs["aria-required"] = "true";
+        if (errorMessage) attrs["aria-errormessage"] = errorMessage;
+        if (isInvalid) attrs["aria-invalid"] = "true";
+        return <input {...attrs} />;
+      }
+    ),
     useDisclosure: vi.fn(() => ({
       isOpen: true,
       onOpen: vi.fn(),
