@@ -16,7 +16,8 @@ tsconfig.node.tsbuildinfo
 /config/*
 /extensions/*
 /scripts/*
-
+/coverage/*
+/agent/*
 # But don't ignore these specific files
 !/config/README.md
 !/config/*.default.ts
@@ -43,3 +44,6 @@ output/
 
 # Agent
 agent/
+
+# Coverage
+coverage/

@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)]()
-[![Sponsor](https://img.shields.io/badge/Sponsor-Systemprompt-blue.svg)](https://systemprompt.com)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Systemprompt-blue.svg)](https://systemprompt.io)
 
 > 🌟 **Free and Open Source Software**: This project is completely free to use and modify under the MIT license. We believe in the power of open source to drive innovation in AI tooling.
 
@@ -213,7 +213,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 💪 Sponsored by Systemprompt
 
-This project is proudly sponsored and maintained by [Systemprompt](https://systemprompt.com). We're committed to advancing the field of AI tooling and making powerful AI interfaces accessible to everyone.
+This project is proudly sponsored and maintained by [Systemprompt](https://systemprompt.io). We're committed to advancing the field of AI tooling and making powerful AI interfaces accessible to everyone.
 
 ### 🚀 Extensions in Development
 
