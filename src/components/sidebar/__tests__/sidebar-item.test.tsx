@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { SidebarItem } from "../sidebar-item";
+import { SidebarItem } from "../SidebarItem";
 import { SidebarItem as SidebarItemType } from "../types";
 
 // Mock the Icon component

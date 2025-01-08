@@ -1,37 +1,57 @@
 # Systemprompt MCP Client
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)]()
+[![Sponsor](https://img.shields.io/badge/Sponsor-Systemprompt-blue.svg)](https://systemprompt.com)
+
+> 🌟 **Free and Open Source Software**: This project is completely free to use and modify under the MIT license. We believe in the power of open source to drive innovation in AI tooling.
+
 A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
 
-## 🎤 What is Systemprompt MCP?
+## 🎯� Why Systemprompt MCP?
 
-Systemprompt MCP Client is a powerful interface that combines:
+Transform your AI interactions with a powerful voice-first interface that combines the best of:
 
-- Google Gemini's advanced multimodal AI capabilities for understanding voice and visual inputs
-- MCP (Model Control Protocol) for extensible tool integration and AI workflow orchestration
-- Voice-controlled interface for natural interaction with AI systems
+- **Google Gemini's Multimodal AI**: Understand and process text, voice, and visual inputs naturally
+- **MCP (Model Control Protocol)**: Execute complex AI workflows with a robust tooling system
+- **Voice-First Design**: Control everything through natural speech, making AI interaction more intuitive
 
-The system enables you to:
+Perfect for:
 
-- Control AI workflows through natural voice commands
-- Leverage Google Gemini for sophisticated multimodal understanding
-- Execute complex system prompts using voice input
-- Extend functionality through MCP's tool system
-- Manage and monitor AI operations through a modern web interface
+- **Developers** building voice-controlled AI applications
+- **Teams** needing a flexible AI workflow orchestration system
+- **Organizations** wanting to leverage Google Gemini's capabilities with extensible tooling
 
-Think of it as a voice-enabled AI control center - you speak, Gemini understands your intent across multiple modalities, and MCP orchestrates the appropriate tools and workflows to accomplish your goals.
+## 🎯 Core Features
 
-## 🎯 Purpose
+### Voice & Multimodal Intelligence
 
-The Systemprompt MCP Client serves as a central control panel for:
+- **Natural Voice Control**: Speak naturally to control AI workflows and execute commands
+- **Multimodal Understanding**: Process text, voice, and visual inputs simultaneously
+- **Real-time Voice Synthesis**: Get instant audio responses from your AI interactions
 
-- Voice-controlled AI workflow orchestration through MCP's tool system
-- Multimodal interactions powered by Google Gemini
-- Managing and executing system prompts with voice commands
-- Configuring and interacting with multiple LLM models
-- Providing an extensible interface for AI interactions
-- Streamlining server-side configurations and prompt management
+### AI Workflow Orchestration
 
-## 🏗️ Architecture Overview
+- **Extensible Tool System**: Add custom tools and workflows through MCP
+- **Workflow Automation**: Chain multiple AI operations with voice commands
+- **State Management**: Robust handling of complex, multi-step AI interactions
+
+### Developer Experience
+
+- **Modern Tech Stack**: Built with Vite, React, TypeScript, and NextUI
+- **Type Safety**: Full TypeScript support with comprehensive type definitions
+- **Hot Module Replacement**: Fast development with instant feedback
+- **Comprehensive Testing**: Built-in testing infrastructure with high coverage
+
+### Enterprise Ready
+
+- **Secure**: Built-in security best practices for API key management
+- **Scalable**: Modular architecture supporting multiple LLM providers
+- **Configurable**: Extensive configuration options for different environments
+
+## 🏗️ Architecture
+
+The system follows a modular, feature-based architecture:
 
 ```mermaid
 graph TD
@@ -54,45 +74,13 @@ graph TD
     style C,D,E fill:#ddf,stroke:#333,stroke-width:2px
 ```
 
-### Project Structure
+### Key Components
 
-```mermaid
-graph TD
-    A[src] --> B[features]
-    A --> C[components]
-    A --> D[pages]
-    A --> E[providers]
-    A --> F[contexts]
-    A --> G[stores]
-    A --> H[utils]
-    A --> I[hooks]
-
-    B --> J[multimodal-agent]
-    B --> K[llm-registry]
-    B --> L[server]
-
-    style A fill:#f96,stroke:#333,stroke-width:2px
-    style B,C,D,E,F,G,H,I fill:#ff9,stroke:#333,stroke-width:2px
-    style J,K,L fill:#9f9,stroke:#333,stroke-width:2px
-```
-
-## 📁 Directory Structure
-
-```
-src/
-├── features/           # Core feature modules
-│   ├── multimodal-agent/   # Voice and multimodal interactions
-│   ├── llm-registry/      # LLM configuration and management
-│   └── server/           # Server-side features and config
-├── components/         # Shared UI components
-├── pages/             # Application pages/routes
-├── providers/         # React providers
-├── contexts/          # Application contexts
-├── stores/            # State management
-├── utils/             # Utility functions
-├── hooks/             # Custom React hooks
-└── test/              # Test utilities and setup
-```
+- **Multimodal Agent**: Handles voice recognition, synthesis, and multimodal processing
+- **LLM Registry**: Manages different language models and their configurations
+- **Server Management**: Handles MCP server connections and tool orchestration
+- **Voice Control**: Processes natural language commands and converts them to actions
+- **Prompt Management**: Handles system prompts and their execution
 
 ## 🚀 Getting Started
 
@@ -104,36 +92,61 @@ src/
 
 ### Development Setup
 
-1. Install dependencies:
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/systemprompt-mcp-client.git
+   cd systemprompt-mcp-client
+   ```
+
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Configure environment variables:
+3. Set up configuration files:
+
+   ```bash
+   # Navigate to config directory
+   cd config
+
+   # Create local configuration files from templates
+   cp mcp.config.default.json mcp.config.json
+   cp agent.config.default.json agent.config.json
+   cp llm.config.default.json llm.config.json
+   ```
+
+   Edit the created files to add your specific settings:
+
+   - `mcp.config.json`: Configure MCP server connections
+   - `agent.config.json`: Set up agent configurations
+   - `llm.config.json`: Configure LLM settings and API keys
+
+4. Configure environment variables:
 
    - Copy `.env.example` to `.env`
    - Set up required API keys and configurations:
-     ```env
-     VITE_API_KEY=your_api_key
-     VITE_MCP_ENDPOINT=your_mcp_endpoint
-     ```
 
-3. Start the development server:
+   ```env
+   VITE_GEMINI_API_KEY=your_api_key
+   VITE_MCP_SERVER_URL=ws://localhost:3000
+   VITE_AUDIO_SAMPLE_RATE=16000
+   ```
+
+5. Start the development server:
 
    ```bash
    npm run dev
    ```
 
-   This will start the Vite development server with HMR (Hot Module Replacement)
+   The development server will be available at `http://localhost:5173`
 
-4. Build for production:
+6. Build for production:
    ```bash
    npm run build
    npm run preview  # Preview the production build locally
    ```
-
-The development server will be available at `http://localhost:5173` by default.
 
 ## 📄 Configuration
 
@@ -149,11 +162,7 @@ The application uses several configuration files in the `config/` directory:
 We maintain comprehensive test coverage:
 
 ```bash
-# Run all tests
 npm test
-
-# Run tests with coverage
-npm run test:coverage
 ```
 
 ## 🤝 Contributing
@@ -185,12 +194,34 @@ npm run test:coverage
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- Google Gemini team
+- Google Gemini team for their powerful multimodal AI capabilities
 - Model Control Protocol (MCP) community
 - React and TypeScript communities
-- Contributors and maintainers
-- Open source projects that made this possible
+- NextUI and Tailwind CSS teams
+- All contributors and maintainers
+
+## 🔗 Resources
+
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [NextUI Components](https://nextui.org)
+- [React TypeScript Guidelines](https://react-typescript-cheatsheet.netlify.app/)
+- [ARIA Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
+
+## 💪 Sponsored by Systemprompt
+
+This project is proudly sponsored and maintained by [Systemprompt](https://systemprompt.com). We're committed to advancing the field of AI tooling and making powerful AI interfaces accessible to everyone.
+
+### 🚀 Extensions in Development
+
+We're actively working on expanding the capabilities of Systemprompt MCP Client with exciting extensions:
+
+- **Custom Tool Builder**: Create and deploy your own MCP tools
+- **Enterprise Workflow Templates**: Pre-built workflows for common business scenarios
+- **Advanced Voice Processing**: Enhanced voice recognition and synthesis capabilities
+- **Team Collaboration Features**: Multi-user support and shared workflows
+
+Stay tuned for updates and new releases! Follow us on [GitHub](https://github.com/systemprompt) or join our [Discord community](https://discord.gg/systemprompt) for the latest news.

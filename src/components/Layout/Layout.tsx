@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { useSidebarItems } from "../sidebar/sidebar-items";
+import { useSidebarItems } from "../sidebar/SidebarItems";
 import Sidebar from "../sidebar";
 import ControlTray from "@/features/multimodal-agent/components/control-tray/ControlTray";
 import { Icon } from "@iconify/react";

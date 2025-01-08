@@ -3,7 +3,7 @@ import { Card, CardBody, Button, Spinner } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useAgentRegistry, AgentConfig } from "@/features/agent-registry";
-import { AgentCard } from "@/components/shared/Card/AgentCard";
+import { AgentCard } from "@/components/Card/AgentCard";
 
 function EmptyState({ onCreateAgent }: { onCreateAgent: () => void }) {
   return (

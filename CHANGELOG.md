@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-01-08
+
+### Changed
+
+- Reorganized language model documentation directories from `__llms__` to `__llm__`
+- Updated component file structure for better organization
+- Improved documentation with new language model guides
+- Refined test configurations and outputs
+
+### Added
+
+- Added new documentation guides for various components and features
+- Added markdown linting configuration
+
+### Removed
+
+- Cleaned up obsolete architecture documentation
+
 ## [0.3.3] - 2025-01-08
 
 ### Added

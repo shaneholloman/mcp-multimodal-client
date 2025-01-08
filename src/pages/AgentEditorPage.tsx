@@ -4,7 +4,7 @@ import { Card, Input, Textarea, Button, Checkbox } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useAgentRegistry } from "@/features/agent-registry";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
-import { AgentCard } from "@/components/shared/Card/AgentCard";
+import { AgentCard } from "@/components/Card/AgentCard";
 
 const defaultConfig = {
   model: "models/gemini-2.0-flash-exp",

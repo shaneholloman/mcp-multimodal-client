@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useSidebarItems } from "../sidebar-items";
+import { useSidebarItems } from "../SidebarItems";
 import mcpConfig from "@config/mcp.config.json";
 import { McpContext } from "@/contexts/McpContext";
 import { ReactNode } from "react";

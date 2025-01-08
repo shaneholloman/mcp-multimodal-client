@@ -15,6 +15,7 @@ tsconfig.node.tsbuildinfo
 # Configuration files - ignore everything in these directories first
 /config/*
 /extensions/*
+/scripts/*
 
 # But don't ignore these specific files
 !/config/README.md

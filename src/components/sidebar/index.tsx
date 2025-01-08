@@ -1,4 +1,4 @@
-import { SidebarItem } from "./sidebar-item";
+import { SidebarItem } from "./SidebarItem";
 import { SidebarSection } from "./types";
 import { cn } from "@nextui-org/react";
 

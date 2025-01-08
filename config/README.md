@@ -1,5 +1,24 @@
 # MCP Configuration
 
+## Initial Setup
+
+Before running the application, you need to set up your local configuration files:
+
+1. In the `config` directory, create your local configuration files by removing the `.default` suffix from the template files:
+
+   ```bash
+   cp mcp.config.default.json mcp.config.json
+   cp agent.config.default.json agent.config.json
+   cp llm.config.default.json llm.config.json
+   ```
+
+2. Edit each configuration file according to your needs:
+   - `mcp.config.json`: Configure your MCP server connections
+   - `agent.config.json`: Set up your agent configurations
+   - `llm.config.json`: Add your LLM settings and API keys
+
+> Note: The `.default` files are templates tracked in git. Your local copies (without `.default`) are git-ignored to keep your settings private.
+
 This directory contains configuration files for Model Context Protocol (MCP) servers and their connections. The configuration supports two types of MCP servers:
 
 1. **SSE Servers** (`sse`): Remote servers that communicate directly via Server-Sent Events (SSE).
@@ -102,25 +121,3 @@ For stdio servers, environment variables can be specified in the `env` field:
 3. Optionally add custom metadata to control appearance
 4. Use valid Solar icons from the icon set
 5. Choose an appropriate color scheme
-
-## Local Configuration Files
-
-This directory includes default configuration templates that you can use to set up your local environment. To get started:
-
-1. Copy the default configuration files to create your local versions (remove the `.default` suffix):
-
-   ```bash
-   cp mcp.config.default.json mcp.config.json
-   cp agent.config.default.json agent.config.json
-   cp llm.config.default.json llm.config.json
-   ```
-
-2. Modify the copied files with your specific settings.
-
-### Default Templates
-
-- `mcp.config.default.json`: Default MCP server configuration template
-- `agent.config.default.json`: Default agent configuration template
-- `llm.config.default.json`: Default LLM settings template
-
-The `.default` files are tracked in git as templates. Your local copies (without `.default`) will be ignored by git to keep your settings private.
