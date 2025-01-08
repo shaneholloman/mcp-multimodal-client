@@ -222,4 +222,4 @@ We're actively working on expanding the capabilities of Systemprompt MCP Client 
 - **Advanced Voice Processing**: Enhanced voice recognition and synthesis capabilities
 - **Team Collaboration Features**: Multi-user support and shared workflows
 
-Stay tuned for updates and new releases! Follow us on [GitHub](https://github.com/systemprompt) or join our [Discord community](https://discord.gg/systemprompt) for the latest news.
+Stay tuned for updates and new releases! Follow us on [GitHub](https://github.com/Ejb503/multimodal-mcp-client) or join our [Discord community](https://discord.com/invite/wkAbSuPWpr) for the latest news.
