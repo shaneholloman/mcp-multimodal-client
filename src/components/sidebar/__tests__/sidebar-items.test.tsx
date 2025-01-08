@@ -48,9 +48,9 @@ const wrapper = ({ children }: { children: ReactNode }) => {
       serverConfig: {
         key: "filesystem",
         label: "Filesystem",
-        icon: mcpConfig.mcpServers.filesystem.metadata.icon,
+        icon: mcpConfig.defaults.serverTypes.stdio.icon,
         color: "primary",
-        description: mcpConfig.mcpServers.filesystem.metadata.description,
+        description: mcpConfig.defaults.serverTypes.stdio.description,
         serverId: "filesystem",
       },
     },
@@ -67,9 +67,9 @@ const wrapper = ({ children }: { children: ReactNode }) => {
       serverConfig: {
         key: "systempromptLocal",
         label: "Systemprompt Local",
-        icon: mcpConfig.sse.systempromptLocal.metadata.icon,
+        icon: mcpConfig.defaults.serverTypes.sse.icon,
         color: "secondary",
-        description: mcpConfig.sse.systempromptLocal.metadata.description,
+        description: mcpConfig.defaults.serverTypes.sse.description,
         serverId: "systempromptLocal",
       },
     },
@@ -113,9 +113,7 @@ describe("useSidebarItems", () => {
     const stdioServer = serverSection?.items.find(
       (item) => item.serverId === "filesystem"
     );
-    expect(stdioServer?.icon).toBe(
-      mcpConfig.mcpServers.filesystem.metadata.icon
-    );
+    expect(stdioServer?.icon).toBe(mcpConfig.defaults.serverTypes.stdio.icon);
 
     // Test disconnected server (systempromptLocal)
     const disconnectedServer = serverSection?.items.find(

@@ -97,8 +97,8 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
         transport = new SSEClientTransport(baseUrl);
         serverType = "sse";
       } else if (serverId === "systempromptLocal") {
-        const sseConfig = mcpConfig.sse.systempromptLocal;
-        serverUrl = sseConfig.url;
+        const sseConfig = mcpConfig.sse.systemprompt;
+        serverUrl = "http://localhost/v1/mcp/";
         apiKey = sseConfig.apiKey;
         const baseUrl = new URL(serverUrl);
         baseUrl.pathname = `${baseUrl.pathname}${apiKey}`;
