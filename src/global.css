@@ -4,7 +4,7 @@
 
 @font-face {
   font-family: "Zepto";
-  src: url("/console/font/Zepto.woff") format("woff");
+  src: url("/font/Zepto.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

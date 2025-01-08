@@ -1,7 +1,7 @@
 {
   "name": "systemprompt-voice-mcp",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "scripts": {
     "proxy": "tsx --tsconfig proxy/tsconfig.json proxy/src/index.ts",
@@ -10,6 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start": "npm run build && concurrently \"npm run proxy\" \"npm run preview\"",
     "test": "vitest run --reporter verbose > test-output.txt",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
