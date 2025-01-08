@@ -1,0 +1,64 @@
+{
+    "defaults": {
+        "serverTypes": {
+            "sse": {
+                "icon": "solar:server-square-cloud-line-duotone",
+                "color": "primary",
+                "description": "Remote SSE-based MCP server"
+            },
+            "stdio": {
+                "icon": "solar:server-minimalistic-line-duotone",
+                "color": "primary",
+                "description": "Local stdio-based MCP server"
+            }
+        },
+        "unconnected": {
+            "icon": "solar:server-square-line-duotone",
+            "color": "secondary",
+            "description": "Remote MCP server (not connected)"
+        }
+    },
+    "sse": {
+        "systemprompt": {
+            "url": "http://api.systemprompt.io/v1/mcp/",
+            "apiKey": "",
+            "metadata": {
+                "icon": "solar:programming-line-duotone",
+                "color": "success",
+                "description": "Systemprompt-based MCP server instance"
+            }
+        }
+    },
+    "mcpServers": {
+        "windows-systemprompt-agent-server": {
+            "command": "C:\\Program Files\\nodejs\\npx.cmd",
+            "args": [
+                "-y",
+                "systemprompt-agent-server"
+            ],
+            "env": {
+                "SYSTEMPROMPT_API_KEY": ""
+            },
+            "metadata": {
+                "icon": "solar:programming-line-duotone",
+                "color": "success",
+                "description": "Systemprompt Agent MCP server"
+            }
+        },
+        "linux-systemprompt-agent-server": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-systemprompt"
+            ],
+            "env": {
+                "SYSTEMPROMPT_API_KEY": ""
+            },
+            "metadata": {
+                "icon": "solar:programming-line-duotone",
+                "color": "success",
+                "description": "Systemprompt Agent MCP server"
+            }
+        }
+    }
+}

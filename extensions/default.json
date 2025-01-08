@@ -1,0 +1,9 @@
+{
+    "enabled": [],
+    "settings": {
+        "example-extension": {
+            "enabled": false,
+            "config": {}
+        }
+    }
+}

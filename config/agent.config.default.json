@@ -1,0 +1,26 @@
+{
+    "agents": [
+        {
+            "name": "test",
+            "description": "est",
+            "instruction": "set",
+            "knowledge": "tess",
+            "voice": "tes",
+            "tools": [],
+            "dependencies": [],
+            "config": {
+                "model": "models/gemini-2.0-flash-exp",
+                "generationConfig": {
+                    "responseModalities": "audio",
+                    "speechConfig": {
+                        "voiceConfig": {
+                            "prebuiltVoiceConfig": {
+                                "voiceName": "Kore"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    ]
+}

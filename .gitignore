@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/**
+/node_modules
+proxy/node_modules/**
+**/node_modules
+
+# Build output
+dist/
+/dist
+**/dist
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+
+# Configuration files - ignore everything in these directories first
+/config/*
+/extensions/*
+
+# But don't ignore these specific files
+!/config/README.md
+!/config/*.default.ts
+!/config/*.default.json
+!/config/*server.config.ts
+!/config/types.ts
+
+!/extensions/README.md
+!/extensions/default.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Output
+output/
+
+# Agent
+agent/
