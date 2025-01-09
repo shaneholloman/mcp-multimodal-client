@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2025-01-09
+
+### Added
+
+- Added systemprompt-agent-server and dotenv dependencies
+- Added aria-labels for improved accessibility in control tray components
+
+### Changed
+
+- Optimized audio processing with batched queue system
+- Improved error handling in LiveAPIContext and multimodal client
+- Enhanced volume meter performance with debouncing
+- Removed unnecessary console logging statements
+- Refactored audio streaming for better performance
+
 ## [0.3.5] - 2025-01-08
 
 ### Added

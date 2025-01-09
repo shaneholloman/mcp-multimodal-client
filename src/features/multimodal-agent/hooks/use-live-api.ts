@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { MultimodalLiveAPIClientConnection } from "../lib/multimodal-live-client";
 import MultimodalLiveClient from "../lib/multimodal-live-client";
 import { ToolCall } from "../multimodal-live-types";
@@ -8,6 +8,7 @@ import { AudioStreamer } from "../lib/audio-streamer";
 import { audioContext } from "../lib/utils";
 import VolMeterWorket from "../lib/worklets/vol-meter";
 import { useAgentRegistry } from "@/features/agent-registry";
+import debounce from "lodash/debounce";
 
 export type UseLiveAPIResults = {
   client: MultimodalLiveClient | null;
@@ -44,6 +45,23 @@ export function useLiveAPI({
   const clientRef = useRef<MultimodalLiveClient | null>(null);
   const [volume, setVolume] = useState(0);
 
+  // Memoize error response creation
+  const createErrorResponse = useMemo(
+    () => (toolCall: ToolCall, message: string) => ({
+      functionResponses: toolCall.functionCalls.map((fc) => ({
+        response: { error: message },
+        id: fc.id,
+      })),
+    }),
+    []
+  );
+
+  // Debounce volume updates
+  const debouncedSetVolume = useMemo(
+    () => debounce((value: number) => setVolume(value), 50),
+    []
+  );
+
   const handleToolCall = useCallback(
     async (toolCall: ToolCall) => {
       const currentClient = clientRef.current;
@@ -52,12 +70,16 @@ export function useLiveAPI({
         return;
       }
 
+      if (!executeToolAction) {
+        await currentClient.sendToolResponse(
+          createErrorResponse(toolCall, "Tool execution not available")
+        );
+        return;
+      }
+
       try {
         const responses = await Promise.all(
           toolCall.functionCalls.map(async (fc) => {
-            if (!executeToolAction) {
-              throw new Error("Tool execution not available");
-            }
             const result = await executeToolAction(
               fc.name,
               fc.args as Record<string, unknown>
@@ -74,22 +96,58 @@ export function useLiveAPI({
         });
       } catch (error) {
         console.error("Tool execution failed:", error);
-        await currentClient.sendToolResponse({
-          functionResponses: toolCall.functionCalls.map((fc) => ({
-            response: { error: "Tool execution failed" },
-            id: fc.id,
-          })),
-        });
+        await currentClient.sendToolResponse(
+          createErrorResponse(toolCall, "Tool execution failed")
+        );
       }
     },
-    [executeToolAction]
+    [executeToolAction, createErrorResponse]
+  );
+
+  const audioStreamerRef = useRef<AudioStreamer | null>(null);
+  const audioQueueRef = useRef<Uint8Array[]>([]);
+  const processingAudioRef = useRef(false);
+
+  // Process audio chunks in batches
+  const processAudioQueue = useCallback(async () => {
+    if (processingAudioRef.current || !audioStreamerRef.current) return;
+
+    processingAudioRef.current = true;
+    const chunks = audioQueueRef.current;
+    audioQueueRef.current = [];
+
+    try {
+      for (const chunk of chunks) {
+        await audioStreamerRef.current.addPCM16(chunk);
+      }
+    } finally {
+      processingAudioRef.current = false;
+
+      // Check if more chunks arrived while processing
+      if (audioQueueRef.current.length > 0) {
+        requestAnimationFrame(processAudioQueue);
+      }
+    }
+  }, []);
+
+  // Queue audio data instead of processing immediately
+  const queueAudioData = useCallback(
+    (data: ArrayBuffer) => {
+      if (!audioStreamerRef.current) return;
+
+      audioQueueRef.current.push(new Uint8Array(data));
+      if (!processingAudioRef.current) {
+        requestAnimationFrame(processAudioQueue);
+      }
+    },
+    [processAudioQueue]
   );
 
   const setupClientListeners = useCallback(
     (client: MultimodalLiveClient) => {
       client
-        .on("content", (message) => {
-          console.log("Message from server:", message);
+        .on("content", () => {
+          // Content handler
         })
         .on("close", (error) => {
           console.error("WebSocket error:", error);
@@ -99,7 +157,6 @@ export function useLiveAPI({
           }));
         })
         .on("close", () => {
-          console.log("WebSocket closed");
           setConnectionState({
             client: null,
             connected: false,
@@ -108,22 +165,32 @@ export function useLiveAPI({
         })
         .on("toolcall", handleToolCall)
         .on("setupcomplete", () => {
-          console.log("Setup complete received from server");
+          // Setup complete handler
         })
         .on("interrupted", () => {
-          console.log("Server interrupted the connection");
-        })
-        .on("audio", (data) => {
-          console.log("Received audio data from server", data.byteLength);
           if (audioStreamerRef.current) {
-            audioStreamerRef.current.addPCM16(new Uint8Array(data));
+            audioStreamerRef.current.stop();
+            audioQueueRef.current = [];
+            processingAudioRef.current = false;
           }
-        });
+        })
+        .on("audio", queueAudioData);
+
+      return () => {
+        client.removeAllListeners();
+        audioQueueRef.current = [];
+        processingAudioRef.current = false;
+      };
     },
-    [handleToolCall]
+    [handleToolCall, queueAudioData]
   );
 
-  const audioStreamerRef = useRef<AudioStreamer | null>(null);
+  // Clean up debounced function
+  useEffect(() => {
+    return () => {
+      debouncedSetVolume.cancel();
+    };
+  }, [debouncedSetVolume]);
 
   const setConnectionStateAndRef = useCallback(
     (
@@ -205,7 +272,7 @@ export function useLiveAPI({
           VolMeterWorket,
           (event: MessageEvent) => {
             if (event.data && typeof event.data.volume === "number") {
-              setVolume(event.data.volume);
+              debouncedSetVolume(event.data.volume);
             }
           }
         );
@@ -219,6 +286,8 @@ export function useLiveAPI({
     setupAudio();
 
     return () => {
+      audioQueueRef.current = [];
+      processingAudioRef.current = false;
       if (audioStreamerRef.current) {
         audioStreamerRef.current.stop();
         audioStreamerRef.current = null;

@@ -35,25 +35,17 @@ export class AudioRecorder extends EventEmitter {
     }
 
     this.starting = new Promise((resolve, reject) => {
-      console.log("Starting audio recording...");
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then(async (stream) => {
           try {
             this.stream = stream;
-            console.log("Got media stream");
             this.audioContext = await audioContext({
               sampleRate: this.sampleRate,
             });
-            console.log(
-              "Created audio context with sample rate:",
-              this.sampleRate
-            );
             this.source = this.audioContext.createMediaStreamSource(
               this.stream
             );
-            console.log("Created media stream source");
-
             const workletName = "audio-recorder-worklet";
             const src = createWorketFromSrc(workletName, AudioRecordingWorklet);
 
@@ -67,10 +59,6 @@ export class AudioRecorder extends EventEmitter {
             this.recordingWorklet.port.onmessage = async (ev: MessageEvent) => {
               const arrayBuffer = ev.data.data.int16arrayBuffer;
               if (arrayBuffer) {
-                console.log(
-                  "Received audio data from worklet",
-                  arrayBuffer.byteLength
-                );
                 const arrayBufferString = arrayBufferToBase64(arrayBuffer);
                 this.emit("data", arrayBufferString);
               }
@@ -83,7 +71,6 @@ export class AudioRecorder extends EventEmitter {
             await this.audioContext.audioWorklet.addModule(
               createWorketFromSrc(vuWorkletName, VolMeterWorket)
             );
-            console.log("Added VU meter worklet module");
             this.vuWorklet = new AudioWorkletNode(
               this.audioContext,
               vuWorkletName
@@ -93,7 +80,6 @@ export class AudioRecorder extends EventEmitter {
             };
 
             this.source.connect(this.vuWorklet);
-            console.log("Connected VU meter worklet");
             this.recording = true;
             resolve();
             this.starting = null;

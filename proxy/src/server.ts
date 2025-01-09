@@ -40,7 +40,6 @@ export class ProxyServer {
    * @throws Error if the configuration is invalid or transport creation fails
    */
   private async createTransport(query: Request["query"]) {
-    console.log("Creating transport with query:", query);
     const { transportType, serverId } = query;
 
     if (typeof serverId !== "string") {
@@ -48,7 +47,6 @@ export class ProxyServer {
     }
 
     if (transportType === "stdio") {
-      console.log("Setting up stdio transport");
       const serverConfig = this.config.mcpServers[serverId];
       if (!serverConfig) {
         throw new Error(`No configuration found for server: ${serverId}`);
@@ -69,14 +67,11 @@ export class ProxyServer {
         stderr: "pipe",
       });
 
-      console.log("Starting stdio transport");
       await transport.start();
-      console.log("Stdio transport started successfully");
       return transport;
     }
 
     if (transportType === "sse") {
-      console.log("Setting up SSE transport");
       const serverConfig = this.config.sse.systemprompt;
       if (!serverConfig) {
         throw new Error(`No SSE configuration found for server: ${serverId}`);
@@ -85,9 +80,7 @@ export class ProxyServer {
       const url = new URL(serverConfig.url);
       url.searchParams.set("apiKey", serverConfig.apiKey);
       const transport = new SSEClientTransport(url);
-      console.log("Starting SSE transport");
       await transport.start();
-      console.log("SSE transport started successfully");
       return transport;
     }
 
@@ -101,14 +94,11 @@ export class ProxyServer {
    */
   private async handleSSE(req: Request, res: Response): Promise<void> {
     try {
-      console.log("Handling SSE request");
       const backingServerTransport = await this.createTransport(req.query);
       const webAppTransport = new SSEServerTransport("/message", res);
 
       this.webAppTransports.push(webAppTransport);
-      console.log("Starting web app transport");
       await webAppTransport.start();
-      console.log("Web app transport started");
 
       let isConnected = true;
 
@@ -164,7 +154,6 @@ export class ProxyServer {
       });
 
       req.on("close", () => {
-        console.log("SSE connection closed");
         isConnected = false;
         const index = this.webAppTransports.indexOf(webAppTransport);
         if (index > -1) {
@@ -189,19 +178,16 @@ export class ProxyServer {
    */
   private async handleMessage(req: Request, res: Response): Promise<void> {
     try {
-      console.log("Handling message request");
       const sessionId = req.query.sessionId;
       const transport = this.webAppTransports.find(
         (t) => t.sessionId === sessionId
       );
 
       if (!transport) {
-        console.log("Session not found:", sessionId);
         res.status(404).end("Session not found");
         return;
       }
 
-      console.log("Processing message for session:", sessionId);
       await transport.handlePostMessage(req, res);
       if (!res.headersSent) {
         res.status(200).end();
@@ -249,14 +235,8 @@ export class ProxyServer {
   public async startServer(port: number): Promise<void> {
     return new Promise((resolve) => {
       this.app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-        console.log("\nAvailable MCP Servers:");
         Object.entries(this.config.mcpServers).forEach(([id, config]) => {
-          console.log(`\n${id}:`);
-          console.log(`  Command: ${config.command}`);
-          console.log(`  Args: ${config.args.join(" ")}`);
           if (config.env) {
-            console.log("  Environment Variables:");
             Object.keys(config.env).forEach((key) => {
               console.log(`    ${key}: [HIDDEN]`);
             });

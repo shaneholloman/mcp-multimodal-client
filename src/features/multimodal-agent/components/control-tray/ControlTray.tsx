@@ -99,8 +99,12 @@ function ControlTray() {
         )}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
+        aria-label="Control panel"
       >
-        <div className="flex items-center justify-between">
+        <div
+          className="flex items-center justify-between"
+          aria-label="Recording controls"
+        >
           <div className="flex items-center gap-6">
             <button
               ref={connectButtonRef}
@@ -184,6 +188,8 @@ function ControlTray() {
                   className="text-xl text-default-600 flex-shrink-0"
                 />
               }
+              aria-label="Select an agent"
+              label="Select Agent"
             >
               {agents.map((agent) => (
                 <SelectItem key={agent.name} value={agent.name}>
@@ -228,7 +234,7 @@ function ControlTray() {
           </div>
         </div>
 
-        <div className="flex items-end gap-4">
+        <div className="flex items-end gap-4" aria-label="Message input">
           <div className="flex-1 relative">
             <textarea
               ref={textAreaRef}

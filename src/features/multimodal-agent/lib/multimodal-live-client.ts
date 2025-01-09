@@ -5,7 +5,7 @@ import {
   ClientContentMessage,
   isInterrupted,
   isModelTurn,
-  isServerContenteMessage,
+  isServerContentMessage,
   isSetupCompleteMessage,
   isToolCallCancellationMessage,
   isToolCallMessage,
@@ -152,11 +152,9 @@ export class MultimodalLiveClient extends EventEmitter<MultimodalLiveClientEvent
   }
 
   protected async receive(blob: Blob) {
-    console.log("Received blob from WebSocket", blob.size);
     const response: LiveIncomingMessage = (await blobToJSON(
       blob
     )) as LiveIncomingMessage;
-    console.log("Parsed WebSocket message:", response);
 
     if (isToolCallMessage(response)) {
       this.log("Tool Call", response, "info");
@@ -175,11 +173,8 @@ export class MultimodalLiveClient extends EventEmitter<MultimodalLiveClientEvent
       return;
     }
 
-    // this json also might be `contentUpdate { interrupted: true }`
-    // or contentUpdate { end_of_turn: true }
-    if (isServerContenteMessage(response)) {
+    if (isServerContentMessage(response)) {
       const { serverContent } = response;
-      console.log("Received server content:", serverContent);
 
       if (isInterrupted(serverContent)) {
         this.log("Interrupted", response, "warning");
@@ -189,26 +184,21 @@ export class MultimodalLiveClient extends EventEmitter<MultimodalLiveClientEvent
       if (isTurnComplete(serverContent)) {
         this.log("Turn Complete", response, "success");
         this.emit("turncomplete");
-        //plausible theres more to the message, continue
       }
 
       if (isModelTurn(serverContent)) {
         let parts: Part[] = serverContent.modelTurn.parts;
-        console.log("Model turn parts:", parts);
 
         const audioParts = parts.filter(
           (p) => p.inlineData && p.inlineData.mimeType.startsWith("audio/pcm")
         );
-        console.log("Found audio parts:", audioParts.length);
 
         const base64s = audioParts.map((p) => p.inlineData?.data);
         const otherParts = difference(parts, audioParts);
-        console.log("Found other parts:", otherParts.length);
 
         base64s.forEach((b64) => {
           if (b64) {
             const data = base64ToArrayBuffer(b64);
-            console.log("Emitting audio data", data.byteLength);
             this.emit("audio", data);
           }
         });
@@ -219,12 +209,9 @@ export class MultimodalLiveClient extends EventEmitter<MultimodalLiveClientEvent
         parts = otherParts;
 
         const content: ModelTurn = { modelTurn: { parts } };
-        console.log("Emitting content:", content);
         this.emit("content", content);
         this.log("Server Content", response);
       }
-    } else {
-      console.log("received unmatched message", response);
     }
   }
 
@@ -232,7 +219,6 @@ export class MultimodalLiveClient extends EventEmitter<MultimodalLiveClientEvent
    * send realtimeInput, this is base64 chunks of "audio/pcm" and/or "image/jpg"
    */
   sendRealtimeInput(chunks: GenerativeContentBlob[]) {
-    console.log("sendRealtimeInput", chunks);
     let hasAudio = false;
     let hasVideo = false;
     for (let i = 0; i < chunks.length; i++) {

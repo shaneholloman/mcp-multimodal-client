@@ -23,46 +23,23 @@ export const LiveAPIProvider: FC<LiveAPIProviderProps> = ({ children }) => {
     toolName: string,
     args: Record<string, unknown>
   ) => {
-    // Get tools from all active clients
-    const availableTools = Object.entries(clients)
-      .filter(([, client]) => client.connectionStatus === "connected")
-      .reduce<(typeof clients)[string]["tools"]>((acc, [, client]) => {
-        if (client.tools) {
-          return [...acc, ...client.tools];
-        }
-        return acc;
-      }, []);
+    // Find the first client that has the requested tool
+    const clientEntry = Object.entries(clients).find(
+      ([, client]) =>
+        client.connectionStatus === "connected" &&
+        client.tools?.some((tool) => tool.name === toolName)
+    );
 
-    console.log("Available tools:", availableTools);
-
-    // Check if the tool is available in any MCP client
-    const mcpTool = availableTools.find((tool) => tool.name === toolName);
-    console.log("Found tool:", mcpTool);
-
-    if (mcpTool) {
-      const clientWithTool = Object.entries(clients).find(
-        ([, client]) =>
-          client.connectionStatus === "connected" &&
-          client.tools?.some((tool) => tool.name === toolName)
-      );
-      console.log("Client with tool:", clientWithTool);
-
-      if (clientWithTool) {
-        console.log("Executing tool with client:", clientWithTool[0]);
-        return await executeTool(clientWithTool[0], { name: toolName, args });
-      }
+    if (clientEntry) {
+      const [clientId] = clientEntry;
+      return await executeTool(clientId, { name: toolName, args });
     }
-    return undefined; // Explicitly return undefined when tool is not found
+
+    return undefined;
   };
 
   const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
   const liveAPI = useLiveAPI({ url });
-
-  console.log("LiveAPIProvider - Creating context with:", {
-    liveAPI,
-    executeToolAction,
-    clients,
-  });
 
   return (
     <LiveAPIContext.Provider

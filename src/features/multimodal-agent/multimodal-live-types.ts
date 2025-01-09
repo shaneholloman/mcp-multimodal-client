@@ -157,9 +157,8 @@ export const isToolResponseMessage = (a: unknown): a is ToolResponseMessage =>
 export const isSetupCompleteMessage = (a: unknown): a is SetupCompleteMessage =>
   hasProperty(a, "setupComplete");
 
-export const isServerContenteMessage = (
-  a: unknown
-): a is ServerContentMessage => hasProperty(a, "serverContent");
+export const isServerContentMessage = (a: unknown): a is ServerContentMessage =>
+  hasProperty(a, "serverContent");
 
 export const isToolCallMessage = (a: unknown): a is ToolCallMessage =>
   hasProperty(a, "toolCall");

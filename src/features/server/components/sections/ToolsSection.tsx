@@ -22,7 +22,16 @@ interface McpTool {
   description?: string;
   inputSchema: {
     type: "object";
-    properties?: Record<string, { type: string; description?: string }>;
+    properties?: Record<
+      string,
+      {
+        type: string;
+        description?: string;
+        items?: {
+          type: string;
+        };
+      }
+    >;
     required?: string[];
   };
 }
@@ -108,12 +117,51 @@ export function ToolsSection({
       Object.entries(selectedTool.inputSchema.properties).forEach(
         ([key, param]) => {
           const value = toolParams[key];
-          if (value) {
-            if (param.type === "number") {
-              processedParams[key] = Number(value);
-            } else {
-              processedParams[key] = value;
+          if (value === undefined || value === "") return;
+
+          try {
+            switch (param.type) {
+              case "number":
+              case "integer":
+                processedParams[key] = Number(value);
+                break;
+              case "boolean":
+                processedParams[key] = value.toLowerCase() === "true";
+                break;
+              case "array":
+                // Try parsing as JSON first
+                try {
+                  processedParams[key] = JSON.parse(value);
+                } catch {
+                  // If not JSON, handle comma-separated values
+                  const items = value.split(",").map((item) => item.trim());
+                  // Convert array items based on items schema if present
+                  if (param.items?.type) {
+                    processedParams[key] = items.map((item) => {
+                      switch (param.items?.type) {
+                        case "number":
+                        case "integer":
+                          return Number(item);
+                        case "boolean":
+                          return item.toLowerCase() === "true";
+                        default:
+                          return item;
+                      }
+                    });
+                  } else {
+                    processedParams[key] = items;
+                  }
+                }
+                break;
+              case "object":
+                processedParams[key] = JSON.parse(value);
+                break;
+              default:
+                processedParams[key] = value;
             }
+          } catch {
+            // If parsing fails, use the raw value
+            processedParams[key] = value;
           }
         }
       );
