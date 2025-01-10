@@ -10,7 +10,7 @@ export interface SSEServerConfig {
 }
 
 export interface McpConfig {
-  sse: {
+  sse?: {
     systemprompt: SSEServerConfig;
   };
   mcpServers: Record<string, ServerConfig>;

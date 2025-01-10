@@ -11,7 +11,7 @@ import {
  * Determines the server type based on its configuration
  */
 export function getServerType(id: string, config: McpConfig): "sse" | "stdio" {
-  return config.sse[id] ? "sse" : "stdio";
+  return config.sse?.systemprompt ? "sse" : "stdio";
 }
 
 /**
@@ -21,7 +21,7 @@ export function getRawServerConfig(
   id: string,
   config: McpConfig
 ): SSEServerConfig | StdioServerConfig | undefined {
-  return config.sse[id] || config.mcpServers[id];
+  return config.sse?.systemprompt || config.mcpServers[id];
 }
 
 /**
@@ -51,7 +51,7 @@ export function buildServerMetadata(
     color: config.defaults.unconnected.color,
     icon:
       configMetadata?.icon ||
-      typeDefaults?.icon ||
+      typeDefaults.icon ||
       config.defaults.unconnected.icon,
     name: serverMetadata?.name,
   };
@@ -93,10 +93,7 @@ export function getServerConfig(
  */
 export function getServerConfigs(): SidebarItem[] {
   const config = mcpConfig as McpConfig;
-  return [
-    ...Object.keys(config.sse).map((id) => getServerConfig(id)),
-    ...Object.keys(config.mcpServers).map((id) => getServerConfig(id)),
-  ];
+  return Object.keys(config.mcpServers).map((id) => getServerConfig(id));
 }
 
 /**
@@ -104,10 +101,7 @@ export function getServerConfigs(): SidebarItem[] {
  */
 export function getServerNames(): Record<string, string> {
   const config = mcpConfig as McpConfig;
-  const serverIds = [
-    ...Object.keys(config.sse),
-    ...Object.keys(config.mcpServers),
-  ];
+  const serverIds = Object.keys(config.mcpServers);
 
   return serverIds.reduce((names, id) => {
     names[id] = getServerConfig(id).label;

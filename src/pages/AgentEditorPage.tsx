@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, Input, Textarea, Button, Checkbox } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useAgentRegistry } from "@/features/agent-registry";
-import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { Tool, Resource } from "@modelcontextprotocol/sdk/types.js";
 import { AgentCard } from "@/components/Card/AgentCard";
 
 const defaultConfig = {
@@ -23,13 +23,19 @@ const defaultConfig = {
 export default function AgentEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { saveAgent, tools: availableTools, getAgent } = useAgentRegistry();
+  const {
+    saveAgent,
+    tools: availableTools,
+    getAgent,
+    resources,
+  } = useAgentRegistry();
   const isEditMode = !!id;
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemInstruction, setSystemInstruction] = useState("");
   const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
+  const [selectedResources, setSelectedResources] = useState<Resource[]>([]);
   const [nameError, setNameError] = useState<string>("");
   const [loading, setLoading] = useState(isEditMode);
 
@@ -46,10 +52,22 @@ export default function AgentEditorPage() {
           agent.tools.some((agentTool) => agentTool.name === tool.name)
         );
         setSelectedTools(agentTools);
+        setSelectedResources(agent.resources || []);
       }
       setLoading(false);
     }
   }, [isEditMode, id, getAgent, availableTools]);
+
+  const handleResourceClick = (resource: Resource) => {
+    const isSelected = selectedResources.some((r) => r.uri === resource.uri);
+    if (isSelected) {
+      setSelectedResources(
+        selectedResources.filter((r) => r.uri !== resource.uri)
+      );
+    } else {
+      setSelectedResources([...selectedResources, resource]);
+    }
+  };
 
   const handleSave = async () => {
     if (!name) {
@@ -70,6 +88,7 @@ export default function AgentEditorPage() {
           description: tool.description || "",
           parameters: (tool.parameters || {}) as Record<string, unknown>,
         })),
+        resources: selectedResources,
         dependencies: [],
         config: defaultConfig,
       });
@@ -90,6 +109,7 @@ export default function AgentEditorPage() {
       description: tool.description || "",
       parameters: (tool.parameters || {}) as Record<string, unknown>,
     })),
+    resources: selectedResources,
     dependencies: [],
     config: defaultConfig,
   };
@@ -212,6 +232,49 @@ export default function AgentEditorPage() {
                     <span className="text-tiny text-default-400">
                       {tool.description}
                     </span>
+                  </div>
+                </Checkbox>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl">Resources</h2>
+                <p className="text-small text-default-500">
+                  Select the resources your agent will have access to
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {resources.map((resource) => (
+                <Checkbox
+                  key={resource.uri}
+                  classNames={{
+                    wrapper: "mt-0",
+                  }}
+                  isSelected={selectedResources.some(
+                    (r) => r.uri === resource.uri
+                  )}
+                  onChange={() => handleResourceClick(resource)}
+                >
+                  <div className="flex flex-col">
+                    <span className="text-small font-medium">
+                      {resource.name}
+                    </span>
+                    {resource.description && (
+                      <span className="text-tiny text-default-400">
+                        {resource.description}
+                      </span>
+                    )}
+                    {typeof resource.type === "string" && (
+                      <span className="text-tiny text-default-400">
+                        Type: {resource.type}
+                      </span>
+                    )}
                   </div>
                 </Checkbox>
               ))}

@@ -1,24 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useMcp } from "@/contexts/McpContext";
 import type { ServerCapabilities } from "@/contexts/McpContext.types";
-
-interface McpTool {
-  name: string;
-  description?: string;
-  inputSchema: {
-    type: "object";
-    properties?: Record<string, { type: string; description?: string }>;
-    required?: string[];
-  };
-}
-
-interface RawResource {
-  name: string;
-  description?: string;
-  type?: string;
-  metadata?: unknown;
-  uri: string;
-}
+import { Resource, Tool } from "@modelcontextprotocol/sdk/types.js";
 
 interface Prompt {
   name: string;
@@ -38,16 +21,7 @@ interface Prompt {
   };
 }
 
-interface Resource {
-  name: string;
-  description?: string;
-  type?: string;
-  uri: string;
-}
-
 interface UseServerOptions {
-  /** Whether to automatically connect to the server on mount */
-  autoConnect?: boolean;
   /** Callback for handling connection errors */
   onError?: (error: Error) => void;
   /** The server ID to connect to */
@@ -117,27 +91,16 @@ interface McpPromptResponse {
 }
 
 export interface ServerState {
-  /** Whether the server is currently connected */
   isConnected: boolean;
-  /** Whether a connection attempt is in progress */
   isConnecting: boolean;
-  /** Whether there was an error connecting */
   hasError: boolean;
-  /** Any error that occurred during connection */
   error: Error | null;
-  /** List of available tools */
-  tools: McpTool[];
-  /** List of available prompts */
+  tools: Tool[];
   prompts: Prompt[];
-  /** List of available resources */
   resources: Resource[];
-  /** Whether the server supports listing tools */
   hasListToolsCapability: boolean;
-  /** Whether the server supports listing prompts */
   hasListPromptsCapability: boolean;
-  /** Whether the server supports listing resources */
   hasListResourcesCapability: boolean;
-  /** Server information including version and capabilities */
   serverInfo?: {
     name: string;
     version: string;
@@ -147,61 +110,28 @@ export interface ServerState {
 }
 
 export interface ServerActions {
-  /** Connect to the server */
   connect: () => Promise<void>;
-  /** Disconnect from the server */
   disconnect: () => Promise<void>;
-  /** Fetch available tools from the server */
   fetchTools: () => Promise<void>;
-  /** Execute a tool with the given parameters */
   executeTool: (
     toolName: string,
     params: Record<string, unknown>
   ) => Promise<unknown>;
-  /** Fetch available prompts from the server */
   fetchPrompts: () => Promise<void>;
-  /** Select and load a prompt */
   selectPrompt: (promptName: string) => Promise<void>;
-  /** Get complete prompt details */
   getPromptDetails: (
     promptName: string,
     args?: Record<string, string>
   ) => Promise<Prompt>;
-  /** Execute a prompt with the given parameters */
   executePrompt: (
     promptName: string,
     params: Record<string, unknown>
   ) => Promise<unknown>;
-  /** Fetch available resources from the server */
   fetchResources: () => Promise<void>;
-  /** Read a resource from the server */
   readResource: (resourceUri: string) => Promise<unknown>;
 }
 
-/**
- * Hook for managing server state and operations.
- * Provides a unified interface for connecting to and interacting with an MCP server.
- *
- * @example
- * ```tsx
- * const { state, actions } = useServer({ serverId: "myServer" });
- *
- * // Connect to server
- * useEffect(() => {
- *   actions.connect();
- * }, []);
- *
- * // Use server capabilities
- * if (state.hasListToolsCapability) {
- *   actions.fetchTools();
- * }
- * ```
- */
-export function useServer({
-  autoConnect = false,
-  onError,
-  serverId,
-}: UseServerOptions): {
+export function useServer({ onError, serverId }: UseServerOptions): {
   state: ServerState;
   actions: ServerActions;
 } {
@@ -227,55 +157,56 @@ export function useServer({
     isConnecting: isConnecting || clientState?.connectionStatus === "pending",
     hasError: clientState?.connectionStatus === "error" || error !== null,
     error,
-    tools: (clientState?.tools || []) as McpTool[],
-    prompts: ((clientState?.prompts || []) as McpPromptResponse[]).map((p) => {
-      console.log("Raw prompt:", p);
-      console.log("Prompt arguments:", p.arguments);
-
-      // Create input schema from arguments array
-      const properties: Record<string, { type: string; description?: string }> =
-        {};
-      const required: string[] = [];
-
-      if (Array.isArray(p.arguments)) {
-        p.arguments.forEach(
-          (arg: {
-            name: string;
-            type: string;
-            description?: string;
-            required?: boolean;
-          }) => {
-            properties[arg.name] = {
-              type: arg.type,
-              description: arg.description,
-            };
-            if (arg.required) {
-              required.push(arg.name);
-            }
-          }
-        );
+    tools: clientState?.tools || [],
+    prompts: useMemo(() => {
+      const rawPrompts = (clientState?.prompts || []) as McpPromptResponse[];
+      if (process.env.NODE_ENV === "development") {
+        console.log("Processing prompts batch:", rawPrompts.length);
       }
 
-      return {
-        name: p.name || "",
-        description: p.description,
-        type: p.type,
-        inputSchema:
-          Object.keys(properties).length > 0
-            ? {
-                type: "object",
-                properties,
-                required,
+      return rawPrompts.map((p) => {
+        // Create input schema from arguments array
+        const properties: Record<
+          string,
+          { type: string; description?: string }
+        > = {};
+        const required: string[] = [];
+
+        if (Array.isArray(p.arguments)) {
+          p.arguments.forEach(
+            (arg: {
+              name: string;
+              type: string;
+              description?: string;
+              required?: boolean;
+            }) => {
+              properties[arg.name] = {
+                type: arg.type,
+                description: arg.description,
+              };
+              if (arg.required) {
+                required.push(arg.name);
               }
-            : undefined,
-      };
-    }),
-    resources: ((clientState?.resources || []) as RawResource[]).map((r) => ({
-      name: r.name,
-      description: r.description,
-      type: r.type,
-      uri: r.uri,
-    })),
+            }
+          );
+        }
+
+        return {
+          name: p.name || "",
+          description: p.description,
+          type: p.type,
+          inputSchema:
+            Object.keys(properties).length > 0
+              ? {
+                  type: "object",
+                  properties,
+                  required,
+                }
+              : undefined,
+        };
+      });
+    }, [clientState?.prompts]),
+    resources: clientState?.resources || [],
     hasListToolsCapability: Boolean(
       clientState?.serverInfo?.capabilities?.tools
     ),
@@ -442,13 +373,10 @@ export function useServer({
       params: Record<string, unknown>
     ) => {
       try {
-        console.log("Executing prompt:", promptName);
-        console.log("With parameters:", params);
         const result = await executePrompt(serverId, {
           name: promptName,
           args: params,
         });
-        console.log("Prompt execution result:", result);
         return result;
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));
@@ -477,14 +405,6 @@ export function useServer({
       }
     },
   };
-
-  useEffect(() => {
-    if (autoConnect) {
-      actions.connect();
-    }
-    // Only run on mount and when serverId changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverId]);
 
   return { state, actions };
 }

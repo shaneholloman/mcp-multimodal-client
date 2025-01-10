@@ -191,6 +191,29 @@ describe("ProxyServer", () => {
       expect(response.body.error).toBe("Invalid transport type specified");
     });
 
+    it("should return 500 when SSE configuration is missing", async () => {
+      // Create a server instance without SSE configuration
+      const configWithoutSSE: McpConfig = {
+        mcpServers: {
+          test: {
+            command: "echo",
+            args: ["test"],
+          },
+        },
+      };
+      const serverWithoutSSE = new ProxyServer(configWithoutSSE);
+      const requestWithoutSSE = supertest(serverWithoutSSE.getExpressApp());
+
+      const response = await requestWithoutSSE
+        .get("/sse")
+        .query({ serverId: "test", transportType: "sse" });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe("SSE configuration is not available");
+
+      await serverWithoutSSE.cleanup();
+    });
+
     it("should handle transport errors", async () => {
       const mockTransport = {
         stderr: mockStream,

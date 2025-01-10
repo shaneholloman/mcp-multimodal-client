@@ -1,4 +1,4 @@
-import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { Resource, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { LiveConfig } from "@/features/multimodal-agent/multimodal-live-types";
 
 export interface PromptPost {
@@ -38,6 +38,12 @@ export interface AgentConfig {
     description: string;
     parameters: Record<string, unknown>;
   }[];
+  resources?: {
+    name: string;
+    description?: string;
+    type?: string;
+    uri: string;
+  }[];
   dependencies: string[];
   config: {
     model: string;
@@ -55,7 +61,6 @@ export interface AgentConfig {
 }
 
 export interface AgentRegistryContextType {
-  // Agent Registry functionality
   agents: AgentConfig[];
   activeAgent: string | null;
   loadAgents: () => Promise<void>;
@@ -63,10 +68,10 @@ export interface AgentRegistryContextType {
   deleteAgent: (agentName: string) => Promise<void>;
   getAgent: (agentName: string) => AgentConfig | null;
   setActiveAgent: (agentName: string | null) => void;
-
-  // Prompt functionality
   tools: Tool[];
   setTools: (tools: Tool[]) => void;
+  resources: Resource[];
+  setResources: (resources: Resource[]) => void;
   prompt: PromptPost;
   config: LiveConfig;
 }

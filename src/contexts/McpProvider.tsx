@@ -219,7 +219,7 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       [serverId]: {
         ...prev[serverId],
-        resources: [...prev[serverId].resources, ...result.resources],
+        resources: result.resources,
       },
     }));
   };

@@ -38,6 +38,7 @@ interface PromptModalProps {
     isLoading?: boolean;
   };
   previewContent?: string;
+  result?: string;
 }
 
 export function PromptModal({
@@ -52,6 +53,7 @@ export function PromptModal({
   requiredParameters = [],
   primaryAction,
   previewContent,
+  result,
 }: PromptModalProps) {
   return (
     <Modal
@@ -106,6 +108,7 @@ export function PromptModal({
                 )}
 
                 {!previewContent &&
+                  !result &&
                   Object.entries(parameters).map(([key, param]) => {
                     const isRequired = requiredParameters.includes(key);
                     const error = validationErrors.find(
@@ -128,9 +131,9 @@ export function PromptModal({
                     );
                   })}
 
-                {previewContent && (
+                {(previewContent || result) && (
                   <pre className="bg-default-100 p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap">
-                    {previewContent}
+                    {result || previewContent}
                   </pre>
                 )}
               </div>

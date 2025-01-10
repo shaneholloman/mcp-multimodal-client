@@ -1,8 +1,8 @@
 import { SidebarSection, SidebarItem } from "./types";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { McpContext } from "@/contexts/McpContext";
-import mcpConfig from "@config/mcp.config.json";
+import { McpContext } from "../../contexts/McpContext";
+import mcpConfig from "../../../config/mcp.config.json";
 
 export function useSidebarItems() {
   const navigate = useNavigate();
@@ -18,33 +18,36 @@ export function useSidebarItems() {
   };
 
   // Get server items with current connection state
-  const serverItems: SidebarItem[] = [
-    ...Object.entries(mcpConfig.sse).map(([id, config]) => ({
-      id,
-      type: "sse",
-      config,
-    })),
-    ...Object.entries(mcpConfig.mcpServers).map(([id, config]) => ({
-      id,
-      type: "stdio",
-      config,
-    })),
-  ].map(({ id, type, config }) => {
+  const serverItems: SidebarItem[] = Object.entries(
+    mcpConfig.mcpServers || {}
+  ).map(([id, config]) => {
     const clientState = clients[id];
     const isConnected = clientState?.connectionStatus === "connected";
+    const type = clientState?.serverType || "stdio";
 
     // Get the appropriate metadata based on connection state and configuration
-    const defaultMetadata =
-      mcpConfig.defaults.serverTypes[
-        type as keyof typeof mcpConfig.defaults.serverTypes
-      ];
+    const defaultMetadata = mcpConfig.defaults.serverTypes?.[type] || {};
 
-    const metadata = isConnected
-      ? {
-          ...defaultMetadata,
-          ...(config.metadata || {}), // Allow custom metadata to override defaults
-        }
-      : mcpConfig.defaults.unconnected;
+    console.log("Processing server:", id, {
+      isConnected,
+      type,
+      defaultMetadata,
+      config,
+      hasMetadata: config && typeof config === "object" && "metadata" in config,
+    });
+
+    const metadata =
+      isConnected &&
+      config &&
+      typeof config === "object" &&
+      "metadata" in config
+        ? {
+            ...defaultMetadata,
+            ...config.metadata,
+          }
+        : mcpConfig.defaults.unconnected;
+
+    console.log("Final metadata:", metadata);
 
     return {
       key: id,

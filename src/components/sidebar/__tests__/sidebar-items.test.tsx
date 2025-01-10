@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useSidebarItems } from "../SidebarItems";
 import { McpContext } from "../../../contexts/McpContext";
@@ -8,19 +8,26 @@ import type {
   McpContextType,
 } from "../../../contexts/McpContext.types";
 
-// Mock react-router-dom
+// Mock modules
+const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
+vi.mock("../../../contexts/McpContext", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../../contexts/McpContext")
+  >("../../../contexts/McpContext");
+  return {
+    ...actual,
+    McpContext: React.createContext<McpContextType | null>(null),
+  };
+});
+
+// Mock the config module
 const mockConfig = {
   defaults: {
     serverTypes: {
-      sse: {
-        icon: "solar:server-square-cloud-line-duotone",
-        color: "primary",
-        description: "Remote SSE-based MCP server",
-      },
       stdio: {
         icon: "solar:server-minimalistic-line-duotone",
         color: "primary",
@@ -33,53 +40,35 @@ const mockConfig = {
       description: "Remote MCP server (not connected)",
     },
   },
-  sse: {
-    systemprompt: {
+  mcpServers: {
+    "systemprompt-dev": {
+      command: "npx",
+      args: [],
       metadata: {
         icon: "solar:programming-line-duotone",
         color: "success",
-        description: "Systemprompt-based MCP server instance",
+        description: "Systemprompt Agent MCP server",
       },
     },
-  },
-  mcpServers: {
-    filesystem: {
+    "systemprompt-agent-server": {
+      command: "npx",
+      args: [],
       metadata: {
-        icon: "solar:folder-with-files-line-duotone",
-        color: "primary",
-        description: "Local filesystem MCP server",
+        icon: "solar:programming-line-duotone",
+        color: "success",
+        description: "Systemprompt Agent MCP server",
       },
     },
   },
 };
 
-// Mock the config module
-vi.doMock("@config/mcp.config.json", () => ({
+vi.mock("../../../config/mcp.config.json", () => ({
   default: mockConfig,
 }));
 
 const wrapper = ({ children }: { children: ReactNode }) => {
   const mockClients: Record<string, McpClientState> = {
-    systemprompt: {
-      connectionStatus: "connected",
-      client: null,
-      serverType: "sse",
-      serverUrl: "http://api.systemprompt.io/v1/mcp/",
-      apiKey: "test-key",
-      resources: [],
-      prompts: [],
-      tools: [],
-      loadedResources: [],
-      serverConfig: {
-        key: "systemprompt",
-        label: "Systemprompt",
-        icon: mockConfig.sse.systemprompt.metadata.icon,
-        color: "success",
-        description: mockConfig.sse.systemprompt.metadata.description,
-        serverId: "systemprompt",
-      },
-    },
-    filesystem: {
+    "systemprompt-dev": {
       connectionStatus: "connected",
       client: null,
       serverType: "stdio",
@@ -90,38 +79,39 @@ const wrapper = ({ children }: { children: ReactNode }) => {
       tools: [],
       loadedResources: [],
       serverConfig: {
-        key: "filesystem",
-        label: "Filesystem",
-        icon: mockConfig.mcpServers.filesystem.metadata.icon,
-        color: "primary",
-        description: mockConfig.mcpServers.filesystem.metadata.description,
-        serverId: "filesystem",
+        key: "systemprompt-dev",
+        label: "Systemprompt Dev",
+        icon: mockConfig.mcpServers["systemprompt-dev"].metadata.icon,
+        color: "success",
+        description:
+          mockConfig.mcpServers["systemprompt-dev"].metadata.description,
+        serverId: "systemprompt-dev",
       },
     },
-    systempromptLocal: {
+    "systemprompt-agent-server": {
       connectionStatus: "disconnected",
       client: null,
-      serverType: "sse",
-      serverUrl: "http://localhost/v1/mcp/",
-      apiKey: "test-key",
+      serverType: "stdio",
+      serverUrl: "",
+      apiKey: "",
       resources: [],
       prompts: [],
       tools: [],
       loadedResources: [],
       serverConfig: {
-        key: "systempromptLocal",
-        label: "Systemprompt Local",
-        icon: mockConfig.defaults.serverTypes.sse.icon,
+        key: "systemprompt-agent-server",
+        label: "Systemprompt Agent Server",
+        icon: mockConfig.defaults.unconnected.icon,
         color: "secondary",
-        description: mockConfig.defaults.serverTypes.sse.description,
-        serverId: "systempromptLocal",
+        description: mockConfig.defaults.unconnected.description,
+        serverId: "systemprompt-agent-server",
       },
     },
   };
 
   const mockContext: McpContextType = {
     clients: mockClients,
-    activeClients: ["systemprompt", "filesystem"],
+    activeClients: ["systemprompt-dev"],
     connectServer: vi.fn(),
     disconnectServer: vi.fn(),
     selectPrompt: vi.fn(),
@@ -139,46 +129,82 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 };
 
 describe("useSidebarItems", () => {
-  it("should use correct default icons for server types", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should render all sidebar sections", () => {
+    const { result } = renderHook(() => useSidebarItems(), { wrapper });
+
+    expect(result.current.sections).toHaveLength(4);
+    expect(result.current.sections.map((s) => s.title)).toEqual([
+      "Main",
+      "Servers",
+      "Settings",
+      "Help",
+    ]);
+  });
+
+  it("should render main section items correctly", () => {
+    const { result } = renderHook(() => useSidebarItems(), { wrapper });
+
+    const mainSection = result.current.sections.find((s) => s.title === "Main");
+    expect(mainSection?.items).toHaveLength(2);
+    expect(mainSection?.items.map((i) => i.label)).toEqual([
+      "Agents",
+      "Create Agent",
+    ]);
+  });
+
+  it("should render server items with correct connection states", () => {
     const { result } = renderHook(() => useSidebarItems(), { wrapper });
 
     const serverSection = result.current.sections.find(
-      (section) => section.title === "Servers"
+      (s) => s.title === "Servers"
     );
     expect(serverSection).toBeDefined();
 
-    // Test SSE server (systemprompt)
-    const sseServer = serverSection?.items.find(
-      (item) => item.serverId === "systemprompt"
+    // Test connected server
+    const connectedServer = serverSection?.items.find(
+      (item) => item.serverId === "systemprompt-dev"
     );
-    expect(sseServer?.icon).toBe(mockConfig.sse.systemprompt.metadata.icon);
+    expect(connectedServer?.icon).toBe(
+      mockConfig.mcpServers["systemprompt-dev"].metadata.icon
+    );
+    expect(connectedServer?.color).toBe("success");
 
-    // Test stdio server (filesystem)
-    const stdioServer = serverSection?.items.find(
-      (item) => item.serverId === "filesystem"
-    );
-    expect(stdioServer?.icon).toBe(
-      mockConfig.mcpServers.filesystem.metadata.icon
-    );
-
-    // Test disconnected server (systempromptLocal)
+    // Test disconnected server
     const disconnectedServer = serverSection?.items.find(
-      (item) => item.serverId === "systempromptLocal"
+      (item) => item.serverId === "systemprompt-agent-server"
     );
     expect(disconnectedServer?.icon).toBe(mockConfig.defaults.unconnected.icon);
+    expect(disconnectedServer?.color).toBe("secondary");
   });
 
-  it("should respect custom metadata icons when provided", () => {
+  it("should handle navigation when clicking items", () => {
+    const { result } = renderHook(() => useSidebarItems(), { wrapper });
+
+    result.current.handleItemClick("/test");
+    expect(mockNavigate).toHaveBeenCalledWith("/test");
+  });
+
+  it("should handle missing server configuration gracefully", () => {
     const { result } = renderHook(() => useSidebarItems(), { wrapper });
 
     const serverSection = result.current.sections.find(
-      (section) => section.title === "Servers"
+      (s) => s.title === "Servers"
     );
+    const items = serverSection?.items || [];
 
-    // Test server with custom metadata from config
-    const customServer = serverSection?.items.find(
-      (item) => item.serverId === "systemprompt"
-    );
-    expect(customServer?.icon).toBe(mockConfig.sse.systemprompt.metadata.icon);
+    // Verify all items have required properties
+    items.forEach((item) => {
+      expect(item.key).toBeDefined();
+      expect(item.label).toBeDefined();
+      expect(item.icon).toBeDefined();
+      expect(item.description).toBeDefined();
+      expect(item.href).toBeDefined();
+      expect(item.color).toBeDefined();
+      expect(item.serverId).toBeDefined();
+    });
   });
 });

@@ -45,6 +45,6 @@ export interface McpConfig {
     };
     unconnected: ServerMetadata;
   };
-  sse: Record<string, SSEServerConfig>;
+  sse?: Record<string, SSEServerConfig>;
   mcpServers: Record<string, StdioServerConfig>;
 }

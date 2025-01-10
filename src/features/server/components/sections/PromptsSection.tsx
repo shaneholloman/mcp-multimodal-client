@@ -58,6 +58,7 @@ export function PromptsSection({
     null
   );
   const [isExecuting, setIsExecuting] = React.useState(false);
+  const [promptResult, setPromptResult] = React.useState<unknown>(null);
 
   // Handlers
   const handlePromptAction = async (
@@ -66,6 +67,7 @@ export function PromptsSection({
   ) => {
     try {
       setIsExecuting(true);
+      setPromptResult(null);
       const promptDetails = await onGetPromptDetails(prompt.name);
       setSelectedPrompt(promptDetails);
       params.reset();
@@ -91,27 +93,36 @@ export function PromptsSection({
           selectedPrompt.name,
           params.values
         );
+        setPromptResult({
+          promptDetails: result,
+          result: result,
+        });
         logger.logSuccess(
           "View Prompt",
           selectedPrompt.name,
           params.values,
           result
         );
-        modal.close();
       } else if (modal.mode === "execute") {
         const promptDetails = await onGetPromptDetails(
           selectedPrompt.name,
           params.values
         );
-        await onExecutePrompt(selectedPrompt.name, params.values);
-        const result = await llm.execute(promptDetails, params.values);
+        const execResult = await onExecutePrompt(
+          selectedPrompt.name,
+          params.values
+        );
+        await llm.execute(promptDetails, params.values);
+        setPromptResult({
+          promptDetails: promptDetails,
+          result: execResult,
+        });
         logger.logSuccess(
           "Execute Prompt",
           selectedPrompt.name,
           params.values,
-          result
+          execResult
         );
-        modal.close();
       }
     } catch (error) {
       logger.logError(
@@ -120,6 +131,7 @@ export function PromptsSection({
         error instanceof Error ? error : "Operation failed",
         params.values
       );
+      modal.close();
     } finally {
       setIsExecuting(false);
     }
@@ -177,6 +189,7 @@ export function PromptsSection({
         onClose={() => {
           modal.close();
           params.reset();
+          setPromptResult(null);
         }}
         title={`${modal.mode === "execute" ? "Execute" : "View"} Prompt: ${
           selectedPrompt?.name
@@ -188,11 +201,19 @@ export function PromptsSection({
         validationErrors={params.errors}
         requiredParameters={selectedPrompt?.inputSchema?.required}
         primaryAction={{
-          label: "Execute Prompt",
+          label: promptResult ? "Close" : "Execute Prompt",
           loadingLabel: "Executing...",
-          onClick: handleSubmit,
+          onClick: promptResult
+            ? () => {
+                modal.close();
+                setPromptResult(null);
+              }
+            : handleSubmit,
           isLoading: isExecuting,
         }}
+        result={
+          promptResult ? JSON.stringify(promptResult, null, 2) : undefined
+        }
         data-testid="prompt-modal"
       />
     </BaseCard>

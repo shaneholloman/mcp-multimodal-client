@@ -12,7 +12,7 @@ import {
   PromptPost,
 } from "../lib/types";
 import { readAgentConfig, writeAgentConfig } from "@/utils/config";
-import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { Resource, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { LiveConfig } from "@/features/multimodal-agent/multimodal-live-types";
 import { useMcp } from "@/contexts/McpContext";
 import { mapToolsToGeminiFormat } from "@/features/multimodal-agent/utils/tool-mappers";
@@ -44,6 +44,7 @@ export function AgentRegistryProvider({ children }: Props) {
   const [agents, setAgents] = useState<AgentConfig[]>([]);
   const [activeAgent, setActiveAgent] = useState<string | null>(null);
   const [tools, setTools] = useState<Tool[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [config, setConfig] = useState<LiveConfig>({
     model: "models/gemini-2.0-flash-exp",
     generationConfig: {
@@ -86,9 +87,7 @@ export function AgentRegistryProvider({ children }: Props) {
   // Load agents
   const loadAgents = useCallback(async () => {
     try {
-      console.log("Loading agent configuration...");
       const config = await readAgentConfig();
-      console.log("Loaded agents:", config.agents);
       const agentsWithConfig = (config.agents || []).map(
         (
           agent: Omit<AgentConfig, "config"> & {
@@ -121,16 +120,21 @@ export function AgentRegistryProvider({ children }: Props) {
           systemInstruction: {
             parts: [
               {
-                text: `
-You are ${agent.name}, the systemprompt.io assistant. 
-
-Here are your available tools in JSON format:
-${JSON.stringify(tools, null, 2)}
-
-${agent.instruction}
-
-${agent.knowledge}
-`,
+                text: agent.instruction,
+              },
+              {
+                text: `The resources you have available are: ${JSON.stringify(
+                  resources,
+                  null,
+                  2
+                )}`,
+              },
+              {
+                text: `The tools you have available are: ${JSON.stringify(
+                  tools,
+                  null,
+                  2
+                )}`,
               },
             ],
           },
@@ -150,9 +154,9 @@ ${agent.knowledge}
         }));
       }
     }
-  }, [activeAgent, agents, tools]);
+  }, [activeAgent, agents, resources, tools]);
 
-  // Update tools from MCP
+  // Update tools and resources from MCP
   useEffect(() => {
     const allTools = activeClients.reduce<Tool[]>((acc, clientId) => {
       const client = clients[clientId];
@@ -174,6 +178,15 @@ ${agent.knowledge}
         ],
       };
     });
+
+    const allResources = activeClients.reduce<Resource[]>((acc, clientId) => {
+      const client = clients[clientId];
+      if (client?.resources) {
+        return [...acc, ...client.resources];
+      }
+      return acc;
+    }, []);
+    setResources(allResources);
   }, [clients, activeClients]);
 
   useEffect(() => {
@@ -232,6 +245,8 @@ ${agent.knowledge}
         setActiveAgent,
         tools,
         setTools,
+        resources,
+        setResources,
         prompt,
         config,
       }}
