@@ -121,13 +121,21 @@ graph TD
    cp llm.config.default.json llm.config.json
    ```
 
-   Edit the created files to add your specific settings:
+   **Required Configuration:**
+
+   1. Create a `.env` file in the root directory and add your Gemini API key:
+      ```bash
+      VITE_GEMINI_API_KEY=your_api_key_here
+      ```
+      Get your API key from [Google AI Studio](https://ai.google.dev/gemini-api/docs). The app will not work without this key.
+
+   Edit the other configuration files to add your specific settings:
 
    - `mcp.config.json`: Configure MCP server connections
    - `agent.config.json`: Set up agent configurations
-   - `llm.config.json`: Configure LLM settings and API keys
+   - `llm.config.json`: Will automatically use the API key from your `.env` file
 
-   Optional: You can get a free API key from [systemprompt.io/console](https://systemprompt.io/console) or configure any custom MCP server of your choice in `mcp.config.json`. With an API key, you can also use the [systemprompt-mcp-core](https://github.com/Ejb503/systemprompt-mcp-core) extension which provides additional agent management and prompt versioning capabilities.
+   Optional: You can get a free Systemprompt API key from [systemprompt.io/console](https://systemprompt.io/console) or configure any custom MCP server of your choice in `mcp.config.json`. With an API key, you can also use the [systemprompt-mcp-core](https://github.com/Ejb503/systemprompt-mcp-core) extension which provides additional agent management and prompt versioning capabilities.
 
 4. Start the development server:
 
