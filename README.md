@@ -99,8 +99,8 @@ graph TD
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/Ejb503/systemprompt-mcp-client.git
-   cd systemprompt-mcp-client
+   git clone https://github.com/Ejb503/multimodal-mcp-client.git
+   cd multimodal-mcp-client
    ```
 
 2. Install dependencies:
@@ -127,7 +127,7 @@ graph TD
    - `agent.config.json`: Set up agent configurations
    - `llm.config.json`: Configure LLM settings and API keys
 
-   Optional: You can get a free API key from [systemprompt.io/console](https://systemprompt.io/console) or configure any custom MCP server of your choice in `mcp.config.json`.
+   Optional: You can get a free API key from [systemprompt.io/console](https://systemprompt.io/console) or configure any custom MCP server of your choice in `mcp.config.json`. With an API key, you can also use the [systemprompt-mcp-core](https://github.com/Ejb503/systemprompt-mcp-core) extension which provides additional agent management and prompt versioning capabilities.
 
 4. Start the development server:
 
