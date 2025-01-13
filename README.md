@@ -127,6 +127,8 @@ graph TD
    - `agent.config.json`: Set up agent configurations
    - `llm.config.json`: Configure LLM settings and API keys
 
+   Optional: You can get a free API key from [systemprompt.io/console](https://systemprompt.io/console) or configure any custom MCP server of your choice in `mcp.config.json`.
+
 4. Start the development server:
 
    ```bash

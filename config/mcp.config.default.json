@@ -18,17 +18,6 @@
             "description": "Remote MCP server (not connected)"
         }
     },
-    "sse": {
-        "systemprompt": {
-            "url": "http://api.systemprompt.io/v1/mcp/",
-            "apiKey": "",
-            "metadata": {
-                "icon": "solar:programming-line-duotone",
-                "color": "success",
-                "description": "Systemprompt-based MCP server instance"
-            }
-        }
-    },
     "mcpServers": {
         "windows-systemprompt-agent-server": {
             "command": "C:\\Program Files\\nodejs\\npx.cmd",
