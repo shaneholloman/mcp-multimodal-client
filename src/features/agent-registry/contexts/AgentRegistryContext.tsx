@@ -6,11 +6,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import {
-  AgentConfig,
-  AgentRegistryContextType,
-  PromptPost,
-} from "../lib/types";
+import { AgentConfig, AgentRegistryContextType } from "../lib/types";
 import { readAgentConfig, writeAgentConfig } from "@/utils/config";
 import { Resource, Tool } from "@modelcontextprotocol/sdk/types.js";
 import { LiveConfig } from "@/features/multimodal-agent/multimodal-live-types";
@@ -45,6 +41,8 @@ export function AgentRegistryProvider({ children }: Props) {
   const [activeAgent, setActiveAgent] = useState<string | null>(null);
   const [tools, setTools] = useState<Tool[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
+  const [activeTools, setActiveTools] = useState<Tool[]>([]);
+  const [activeResources, setActiveResources] = useState<Resource[]>([]);
   const [config, setConfig] = useState<LiveConfig>({
     model: "models/gemini-2.0-flash-exp",
     generationConfig: {
@@ -57,31 +55,6 @@ export function AgentRegistryProvider({ children }: Props) {
       parts: [{ text: "test" }],
     },
     tools: [{ googleSearch: {} }],
-  });
-  const [prompt, setPrompt] = useState<PromptPost>({
-    instruction: {
-      static: "",
-      state: "{{conversation.history}}",
-      dynamic: "{{audio}}",
-    },
-    input: {
-      name: "Input Schema",
-      description: "An audio input schema",
-      type: ["audio"],
-      reference: [],
-    },
-    output: {
-      name: "Output schema",
-      description: "An audio output schema",
-      type: ["audio"],
-      reference: [],
-    },
-    metadata: {
-      title: "",
-      description: "",
-      tag: [""],
-      log_message: "Created a new research analysis",
-    },
   });
 
   // Load agents
@@ -109,53 +82,6 @@ export function AgentRegistryProvider({ children }: Props) {
     }
   }, [activeAgent]);
 
-  // Update config and prompt when active agent changes
-  useEffect(() => {
-    if (activeAgent) {
-      const agent = agents.find((a) => a.name === activeAgent);
-      if (agent) {
-        setConfig((prevConfig) => ({
-          ...prevConfig,
-          ...agent.config,
-          systemInstruction: {
-            parts: [
-              {
-                text: agent.instruction,
-              },
-              {
-                text: `The resources you have available are: ${JSON.stringify(
-                  resources,
-                  null,
-                  2
-                )}`,
-              },
-              {
-                text: `The tools you have available are: ${JSON.stringify(
-                  tools,
-                  null,
-                  2
-                )}`,
-              },
-            ],
-          },
-        }));
-
-        setPrompt((prev) => ({
-          ...prev,
-          instruction: {
-            ...prev.instruction,
-            static: agent.instruction,
-          },
-          metadata: {
-            ...prev.metadata,
-            title: agent.name,
-            description: agent.description,
-          },
-        }));
-      }
-    }
-  }, [activeAgent, agents, resources, tools]);
-
   // Update tools and resources from MCP
   useEffect(() => {
     const allTools = activeClients.reduce<Tool[]>((acc, clientId) => {
@@ -166,6 +92,7 @@ export function AgentRegistryProvider({ children }: Props) {
       return acc;
     }, []);
     setTools(allTools);
+    setActiveTools(allTools); // Set all tools as active by default
     setConfig((prevConfig) => {
       const parsedTools = mapToolsToGeminiFormat(allTools);
       return {
@@ -187,7 +114,64 @@ export function AgentRegistryProvider({ children }: Props) {
       return acc;
     }, []);
     setResources(allResources);
+    setActiveResources(allResources); // Set all resources as active by default
   }, [clients, activeClients]);
+
+  // Update config when active tools/resources change
+  useEffect(() => {
+    if (activeAgent) {
+      const agent = agents.find((a) => a.name === activeAgent);
+      if (agent) {
+        setConfig((prevConfig) => ({
+          ...prevConfig,
+          ...agent.config,
+          systemInstruction: {
+            parts: [
+              {
+                text: agent.instruction,
+              },
+              {
+                text: `The resources you have available are: ${JSON.stringify(
+                  activeResources,
+                  null,
+                  2
+                )}`,
+              },
+              {
+                text: `The tools you have available are: ${JSON.stringify(
+                  activeTools,
+                  null,
+                  2
+                )}`,
+              },
+            ],
+          },
+        }));
+      }
+    }
+  }, [activeAgent, agents, activeResources, activeTools]);
+
+  const toggleTool = useCallback((tool: Tool) => {
+    setActiveTools((prev) => {
+      const isActive = prev.some((t) => t.name === tool.name);
+      if (isActive) {
+        return prev.filter((t) => t.name !== tool.name);
+      } else {
+        return [...prev, tool];
+      }
+    });
+  }, []);
+
+  const toggleResource = useCallback((resource: Resource) => {
+    setActiveResources((prev) => {
+      const isActive = prev.some((r) => r.uri === resource.uri);
+      if (isActive) {
+        return prev.filter((r) => r.uri !== resource.uri);
+      } else {
+        return [...prev, resource];
+      }
+    });
+  }, []);
 
   useEffect(() => {
     loadAgents().catch(console.error);
@@ -196,12 +180,10 @@ export function AgentRegistryProvider({ children }: Props) {
   const saveAgent = useCallback(
     async (agent: AgentConfig) => {
       try {
-        console.log("Saving agent:", agent.name);
         const newAgents = agents.filter((a) => a.name !== agent.name);
         newAgents.push(agent);
         await writeAgentConfig({ agents: newAgents });
         setAgents(newAgents);
-        console.log("Agent saved successfully");
       } catch (error) {
         console.error("Failed to save agent:", error);
         throw error;
@@ -213,11 +195,9 @@ export function AgentRegistryProvider({ children }: Props) {
   const deleteAgent = useCallback(
     async (agentName: string) => {
       try {
-        console.log("Deleting agent:", agentName);
         const newAgents = agents.filter((a) => a.name !== agentName);
         await writeAgentConfig({ agents: newAgents });
         setAgents(newAgents);
-        console.log("Agent deleted successfully");
       } catch (error) {
         console.error("Failed to delete agent:", error);
         throw error;
@@ -244,10 +224,11 @@ export function AgentRegistryProvider({ children }: Props) {
         getAgent,
         setActiveAgent,
         tools,
-        setTools,
         resources,
-        setResources,
-        prompt,
+        activeTools,
+        activeResources,
+        toggleTool,
+        toggleResource,
         config,
       }}
     >

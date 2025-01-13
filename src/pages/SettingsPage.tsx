@@ -11,10 +11,29 @@ interface ServerConfig {
   env?: Record<string, string>;
   url?: string;
   apiKey?: string;
+  metadata?: {
+    icon?: string;
+    color?: string;
+    description?: string;
+  };
 }
 
 interface McpConfig {
-  sse: Record<string, ServerConfig>;
+  defaults: {
+    serverTypes: Record<
+      string,
+      {
+        icon: string;
+        color: string;
+        description: string;
+      }
+    >;
+    unconnected: {
+      icon: string;
+      color: string;
+      description: string;
+    };
+  };
   mcpServers: Record<string, ServerConfig>;
 }
 
@@ -35,30 +54,18 @@ export default function SettingsPage() {
     config: ServerConfig,
     type: "mcp" | "sse"
   ) => {
-    const getServerIcon = () => {
-      if (name.toLowerCase().includes("filesystem"))
-        return "solar:folder-with-files-line-duotone";
-      if (name.toLowerCase().includes("slack"))
-        return "solar:chat-square-like-line-duotone";
-      if (name.toLowerCase().includes("systemprompt"))
-        return "solar:cloud-line-duotone";
-      return "solar:server-line-duotone";
+    const getServerIcon = (config: ServerConfig) => {
+      return config.metadata?.icon || "solar:server-line-duotone";
     };
 
-    const getServerDescription = () => {
-      if (name.toLowerCase().includes("filesystem"))
-        return "Provides access to local filesystem operations and workspace management";
-      if (name.toLowerCase().includes("slack"))
-        return "Enables integration with Slack for messaging and notifications";
-      if (name.toLowerCase().includes("systemprompt"))
-        return "Connects to SystemPrompt.io API for MCP services";
-      return "Server configuration";
+    const getServerDescription = (config: ServerConfig) => {
+      return config.metadata?.description || "Server configuration";
     };
 
     return (
       <div className="bg-default-50 p-4 rounded-lg">
         <div className="flex items-center gap-2 mb-2">
-          <Icon icon={getServerIcon()} className="w-5 h-5 text-primary" />
+          <Icon icon={getServerIcon(config)} className="w-5 h-5 text-primary" />
           <div className="flex items-center gap-2 flex-1">
             <p className="text-sm ">{name}</p>
             <Chip
@@ -71,7 +78,7 @@ export default function SettingsPage() {
           </div>
         </div>
         <p className="text-sm text-default-500 mb-3">
-          {getServerDescription()}
+          {getServerDescription(config)}
         </p>
         <div className="bg-default-100 p-3 rounded-md">
           <div className="flex flex-col gap-1">
@@ -293,10 +300,6 @@ export default function SettingsPage() {
             <div>
               <h3 className="text-md  mb-2">Available Servers</h3>
               <div className="flex flex-col gap-2">
-                {config &&
-                  Object.entries(config.sse).map(([name, serverConfig]) =>
-                    renderServerCard(name, serverConfig, "sse")
-                  )}
                 {config &&
                   Object.entries(config.mcpServers).map(
                     ([name, serverConfig]) =>

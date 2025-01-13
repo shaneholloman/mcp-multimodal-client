@@ -160,10 +160,6 @@ export function useServer({ onError, serverId }: UseServerOptions): {
     tools: clientState?.tools || [],
     prompts: useMemo(() => {
       const rawPrompts = (clientState?.prompts || []) as McpPromptResponse[];
-      if (process.env.NODE_ENV === "development") {
-        console.log("Processing prompts batch:", rawPrompts.length);
-      }
-
       return rawPrompts.map((p) => {
         // Create input schema from arguments array
         const properties: Record<
@@ -266,7 +262,6 @@ export function useServer({ onError, serverId }: UseServerOptions): {
       try {
         await listPrompts(serverId);
         const updatedClientState = clients[serverId];
-        console.log("Raw prompts:", updatedClientState?.prompts);
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));
         onError?.(err);
@@ -335,15 +330,11 @@ export function useServer({ onError, serverId }: UseServerOptions): {
           };
         }
 
-        // Only make the MCP call if we have parameters
         const result = (await clientState.client.getPrompt({
           name: promptName,
           arguments: args,
         })) as McpPromptResponse;
 
-        console.log("Full prompt details:", result);
-
-        // Create the prompt details with the schema from the arguments
         const promptDetails: Prompt = {
           name: promptName,
           description: result.description,
@@ -359,7 +350,6 @@ export function useServer({ onError, serverId }: UseServerOptions): {
           messages: result.messages,
         };
 
-        console.log("Converted prompt details:", promptDetails);
         return promptDetails;
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));

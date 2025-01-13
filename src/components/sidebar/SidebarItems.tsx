@@ -12,7 +12,6 @@ export function useSidebarItems() {
 
   const handleItemClick = (href: string | undefined) => {
     if (href) {
-      console.log("Navigating to:", href);
       navigate(href);
     }
   };
@@ -28,14 +27,6 @@ export function useSidebarItems() {
     // Get the appropriate metadata based on connection state and configuration
     const defaultMetadata = mcpConfig.defaults.serverTypes?.[type] || {};
 
-    console.log("Processing server:", id, {
-      isConnected,
-      type,
-      defaultMetadata,
-      config,
-      hasMetadata: config && typeof config === "object" && "metadata" in config,
-    });
-
     const metadata =
       isConnected &&
       config &&
@@ -46,8 +37,6 @@ export function useSidebarItems() {
             ...config.metadata,
           }
         : mcpConfig.defaults.unconnected;
-
-    console.log("Final metadata:", metadata);
 
     return {
       key: id,

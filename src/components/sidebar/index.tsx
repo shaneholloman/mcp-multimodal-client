@@ -37,7 +37,6 @@ export default function Sidebar({
                 isCompact={isCompact}
                 isSelected={item.key === defaultSelectedKey}
                 onPress={() => {
-                  console.log("Item clicked:", item);
                   onItemClick?.(item.href);
                 }}
               />

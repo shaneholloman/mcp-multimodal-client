@@ -22,13 +22,6 @@ export function useGeminiProvider() {
       messages: PromptMessage[];
       params?: Record<string, unknown>;
     }): Promise<string> => {
-      console.log("Gemini Provider - Execute Prompt Start", {
-        name,
-        messages,
-        params,
-        config: providerConfig,
-      });
-
       if (!messages || messages.length === 0) {
         const error = "No valid content found in messages";
         console.error("Gemini Provider - No Messages Error", { messages });
@@ -91,7 +84,6 @@ export function useGeminiProvider() {
         throw err;
       } finally {
         setIsLoading(false);
-        console.log("Gemini Provider - Execute Prompt End");
       }
     },
     [addLog, providerConfig]

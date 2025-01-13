@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card, Input, Textarea, Button, Checkbox } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useAgentRegistry } from "@/features/agent-registry";
-import { Tool, Resource } from "@modelcontextprotocol/sdk/types.js";
 import { AgentCard } from "@/components/Card/AgentCard";
 
 const defaultConfig = {
@@ -28,14 +27,16 @@ export default function AgentEditorPage() {
     tools: availableTools,
     getAgent,
     resources,
+    activeTools,
+    activeResources,
+    toggleTool,
+    toggleResource,
   } = useAgentRegistry();
   const isEditMode = !!id;
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemInstruction, setSystemInstruction] = useState("");
-  const [selectedTools, setSelectedTools] = useState<Tool[]>([]);
-  const [selectedResources, setSelectedResources] = useState<Resource[]>([]);
   const [nameError, setNameError] = useState<string>("");
   const [loading, setLoading] = useState(isEditMode);
 
@@ -47,27 +48,10 @@ export default function AgentEditorPage() {
         setName(agent.name);
         setDescription(agent.description);
         setSystemInstruction(agent.instruction);
-        // Map agent tools to available tools
-        const agentTools = availableTools.filter((tool) =>
-          agent.tools.some((agentTool) => agentTool.name === tool.name)
-        );
-        setSelectedTools(agentTools);
-        setSelectedResources(agent.resources || []);
       }
       setLoading(false);
     }
-  }, [isEditMode, id, getAgent, availableTools]);
-
-  const handleResourceClick = (resource: Resource) => {
-    const isSelected = selectedResources.some((r) => r.uri === resource.uri);
-    if (isSelected) {
-      setSelectedResources(
-        selectedResources.filter((r) => r.uri !== resource.uri)
-      );
-    } else {
-      setSelectedResources([...selectedResources, resource]);
-    }
-  };
+  }, [isEditMode, id, getAgent]);
 
   const handleSave = async () => {
     if (!name) {
@@ -83,12 +67,12 @@ export default function AgentEditorPage() {
         instruction: systemInstruction,
         knowledge: "", // No longer using separate knowledge field
         voice: "Kore", // Default voice
-        tools: selectedTools.map((tool) => ({
+        tools: activeTools.map((tool) => ({
           name: tool.name,
           description: tool.description || "",
           parameters: (tool.parameters || {}) as Record<string, unknown>,
         })),
-        resources: selectedResources,
+        resources: activeResources,
         dependencies: [],
         config: defaultConfig,
       });
@@ -104,14 +88,37 @@ export default function AgentEditorPage() {
     instruction: systemInstruction,
     knowledge: "",
     voice: "Kore",
-    tools: selectedTools.map((tool) => ({
+    tools: activeTools.map((tool) => ({
       name: tool.name,
       description: tool.description || "",
       parameters: (tool.parameters || {}) as Record<string, unknown>,
     })),
-    resources: selectedResources,
+    resources: activeResources,
     dependencies: [],
-    config: defaultConfig,
+    config: {
+      ...defaultConfig,
+      systemInstruction: {
+        parts: [
+          {
+            text: systemInstruction,
+          },
+          {
+            text: `The resources you have available are: ${JSON.stringify(
+              activeResources,
+              null,
+              2
+            )}`,
+          },
+          {
+            text: `The tools you have available are: ${JSON.stringify(
+              activeTools,
+              null,
+              2
+            )}`,
+          },
+        ],
+      },
+    },
   };
 
   if (loading) {
@@ -203,7 +210,8 @@ export default function AgentEditorPage() {
             <div>
               <h2 className="text-xl">Tools</h2>
               <p className="text-small text-default-500">
-                Select the capabilities your agent will have access to
+                Select the capabilities your agent will have access to (all
+                selected by default)
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,19 +221,8 @@ export default function AgentEditorPage() {
                   classNames={{
                     wrapper: "mt-0",
                   }}
-                  isSelected={selectedTools.some((t) => t.name === tool.name)}
-                  onChange={() => {
-                    const isSelected = selectedTools.some(
-                      (t) => t.name === tool.name
-                    );
-                    if (isSelected) {
-                      setSelectedTools(
-                        selectedTools.filter((t) => t.name !== tool.name)
-                      );
-                    } else {
-                      setSelectedTools([...selectedTools, tool]);
-                    }
-                  }}
+                  isSelected={activeTools.some((t) => t.name === tool.name)}
+                  onChange={() => toggleTool(tool)}
                 >
                   <div className="flex flex-col">
                     <span className="text-small font-medium">{tool.name}</span>
@@ -236,6 +233,18 @@ export default function AgentEditorPage() {
                 </Checkbox>
               ))}
             </div>
+            <div className="mt-4 bg-default-50 p-4 rounded-lg">
+              <p className="text-sm font-medium mb-2">
+                System Instruction Part:
+              </p>
+              <pre className="text-xs text-default-600 whitespace-pre-wrap font-mono">
+                {`The tools you have available are: ${JSON.stringify(
+                  activeTools,
+                  null,
+                  2
+                )}`}
+              </pre>
+            </div>
           </div>
         </Card>
 
@@ -245,7 +254,8 @@ export default function AgentEditorPage() {
               <div>
                 <h2 className="text-xl">Resources</h2>
                 <p className="text-small text-default-500">
-                  Select the resources your agent will have access to
+                  Select the resources your agent will have access to (all
+                  selected by default)
                 </p>
               </div>
             </div>
@@ -256,10 +266,10 @@ export default function AgentEditorPage() {
                   classNames={{
                     wrapper: "mt-0",
                   }}
-                  isSelected={selectedResources.some(
+                  isSelected={activeResources.some(
                     (r) => r.uri === resource.uri
                   )}
-                  onChange={() => handleResourceClick(resource)}
+                  onChange={() => toggleResource(resource)}
                 >
                   <div className="flex flex-col">
                     <span className="text-small font-medium">
@@ -278,6 +288,18 @@ export default function AgentEditorPage() {
                   </div>
                 </Checkbox>
               ))}
+            </div>
+            <div className="mt-4 bg-default-50 p-4 rounded-lg">
+              <p className="text-sm font-medium mb-2">
+                System Instruction Part:
+              </p>
+              <pre className="text-xs text-default-600 whitespace-pre-wrap font-mono">
+                {`The resources you have available are: ${JSON.stringify(
+                  activeResources,
+                  null,
+                  2
+                )}`}
+              </pre>
             </div>
           </div>
         </Card>

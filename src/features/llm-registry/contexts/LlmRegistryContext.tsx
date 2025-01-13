@@ -33,11 +33,8 @@ export function LlmRegistryProvider({ children }: Props) {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        console.log("Loading LLM configuration...");
         const config = await readLlmConfig();
-        console.log("Loaded config:", config);
         if (config.provider) {
-          console.log("Setting active provider:", config.provider);
           setActiveProvider(config.provider);
           setProviderConfig(config.config || {});
         }
@@ -49,24 +46,12 @@ export function LlmRegistryProvider({ children }: Props) {
     loadConfig();
   }, []);
 
-  // Log state changes for debugging
-  useEffect(() => {
-    console.log("Registry state updated:", {
-      activeProvider,
-      providers: providers.map((p) => p.id),
-      providerConfig,
-    });
-  }, [activeProvider, providers, providerConfig]);
-
   const registerProvider = useCallback(
     (config: LlmProviderConfig, instance: LlmProviderInstance) => {
-      console.log("Registering provider:", config.id, config.name);
       setProviders((prev) => {
         if (prev.some((p) => p.id === config.id)) {
-          console.log("Provider already registered:", config.id);
           return prev;
         }
-        console.log("Adding new provider:", config.id);
         return [...prev, config];
       });
 
@@ -80,7 +65,6 @@ export function LlmRegistryProvider({ children }: Props) {
   );
 
   const unregisterProvider = useCallback((providerId: string) => {
-    console.log("Unregistering provider:", providerId);
     setProviders((prev) => prev.filter((p) => p.id !== providerId));
     setInstances((prev) => {
       const next = new Map(prev);
@@ -92,11 +76,6 @@ export function LlmRegistryProvider({ children }: Props) {
   const getProviderConfig = useCallback(
     (providerId: string): LlmProviderConfig | null => {
       const config = providers.find((p) => p.id === providerId);
-      console.log(
-        "Getting provider config:",
-        providerId,
-        config ? "found" : "not found"
-      );
       return config || null;
     },
     [providers]
@@ -105,11 +84,6 @@ export function LlmRegistryProvider({ children }: Props) {
   const getProviderInstance = useCallback(
     (providerId: string): LlmProviderInstance | null => {
       const instance = instances.get(providerId);
-      console.log(
-        "Getting provider instance:",
-        providerId,
-        instance ? "found" : "not found"
-      );
       return instance || null;
     },
     [instances]

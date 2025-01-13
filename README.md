@@ -1,10 +1,14 @@
 # Systemprompt MCP Client
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)]()
-[![Sponsor](https://img.shields.io/badge/Sponsor-Systemprompt-blue.svg)](https://systemprompt.io)
+[![npm version](https://img.shields.io/npm/v/multimodal-mcp-client.svg)](https://www.npmjs.com/package/multimodal-mcp-client)
+[![smithery badge](https://smithery.ai/badge/multimodal-mcp-client)](https://smithery.ai/server/multimodal-mcp-client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Twitter Follow](https://img.shields.io/twitter/follow/tyingshoelaces_?style=social)](https://twitter.com/tyingshoelaces_)
+[![Discord](https://img.shields.io/discord/1255160891062620252?color=7289da&label=discord)](https://discord.com/invite/wkAbSuPWpr)
 
-> 🌟 **Free and Open Source Software**: This project is completely free to use and modify under the MIT license. We believe in the power of open source to drive innovation in AI tooling.
+[Website](https://systemprompt.io) | [Documentation](https://systemprompt.io/documentation) | [Blog](https://tyingshoelaces.com) | [Get API Key](https://systemprompt.io/console)
+
+> 🌟 **Free and Open Source Software**: A modern voice-controlled AI interface powered by Google Gemini and MCP (Model Control Protocol). Transform how you interact with AI through natural speech and multimodal inputs.
 
 A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
 
@@ -146,49 +150,84 @@ graph TD
    npm run preview  # Preview the production build locally
    ```
 
-## 📄 Configuration
+## 🛠️ Tech Stack
 
-The application uses several configuration files in the `config/` directory:
+- **Frontend**: React 18, TypeScript, Vite 6
+- **UI Components**: NextUI, Tailwind CSS, Framer Motion
+- **State Management**: Zustand
+- **Testing**: Vitest, Testing Library
+- **AI Integration**: Google Generative AI SDK
+- **MCP Protocol**: @modelcontextprotocol/sdk
+- **Development**: ESLint, TypeScript 5.6
 
-- `mcp.config.json`: Main configuration for the MCP tool system
-- `voice-config.json`: Voice recognition and synthesis settings
-- `llm.config.json`: Gemini and other LLM model configurations
-- `server.config.ts`: Server-side settings
+## 📦 Key Features
 
-## 🧪 Testing
+### 🎙️ Voice Control System
 
-We maintain comprehensive test coverage:
+- Natural language command processing
+- Real-time voice synthesis
+- Multi-language support
+- Voice activity detection
+
+### 🤖 AI Integration
+
+- Google Gemini integration
+- Multimodal input processing
+- Real-time AI responses
+- Custom prompt management
+
+### 🔧 MCP Tools
+
+- SSE and stdio server support
+- Custom tool creation
+- Workflow automation
+- State persistence
+
+### 💼 Enterprise Features
+
+- Secure API key management
+- Multiple server configurations
+- Extensible architecture
+- Comprehensive logging
+
+## 🧪 Testing & Quality
 
 ```bash
+# Run tests
 npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
 ```
+
+## 📈 Version History
+
+- **v0.3.6** - Current release
+  - Enhanced voice processing
+  - Updated to Vite 6
+  - Improved TypeScript support
+  - New UI components
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development Guidelines
+## 🔐 Security
 
-1. **Code Style**
+- Secure API key handling
+- Environment-based configuration
+- Regular security updates
+- Protected server endpoints
 
-   - Use TypeScript for all new code
-   - Follow the existing code style and conventions
-   - Document all new features and changes
+## 📞 Support
 
-2. **Testing**
-
-   - Write unit tests for new features
-   - Maintain or improve code coverage
-   - Test across different environments
-
-3. **Documentation**
-   - Update README.md for significant changes
-   - Document new features in relevant feature folders
-   - Keep API documentation up to date
+- [Discord Community](https://discord.com/invite/wkAbSuPWpr)
+- [GitHub Issues](https://github.com/yourusername/systemprompt-mcp-client/issues)
+- [Documentation](https://systemprompt.io/documentation)
+- Email: support@systemprompt.io
 
 ## 📄 License
 

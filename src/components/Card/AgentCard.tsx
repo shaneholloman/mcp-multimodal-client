@@ -1,13 +1,48 @@
 import { Card, Button, ButtonGroup, Tooltip } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { AgentConfig } from "@/features/agent-registry";
+import { Resource } from "@modelcontextprotocol/sdk/types.js";
+
+interface AgentConfig {
+  model: string;
+  generationConfig: {
+    responseModalities: "audio" | "image" | "text";
+    speechConfig: {
+      voiceConfig: {
+        prebuiltVoiceConfig: {
+          voiceName: string;
+        };
+      };
+    };
+  };
+  systemInstruction?: {
+    parts: Array<{
+      text: string;
+    }>;
+  };
+}
+
+interface Agent {
+  name: string;
+  description: string;
+  instruction: string;
+  knowledge: string;
+  voice: string;
+  tools: Array<{
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  }>;
+  resources: Resource[];
+  dependencies: string[];
+  config: AgentConfig;
+}
 
 interface AgentCardProps {
-  agent: AgentConfig;
-  onEdit?: (agent: AgentConfig) => void;
+  agent: Agent;
+  onEdit?: (agent: Agent) => void;
   onSave?: () => void;
   isActive?: boolean;
-  onSetActive?: (agent: AgentConfig) => void;
+  onSetActive?: (agent: Agent) => void;
   className?: string;
   showActions?: boolean;
   isDisabled?: boolean;
@@ -121,16 +156,28 @@ export function AgentCard({
               <Icon
                 icon="solar:document-text-bold-duotone"
                 className={`text-xl ${
-                  agent.instruction ? "text-success" : "text-warning"
+                  agent.config?.systemInstruction?.parts?.length
+                    ? "text-success"
+                    : "text-warning"
                 }`}
               />
               <h4 className="font-medium">System Instructions</h4>
             </div>
-            <p className="text-sm text-default-500">
-              {agent.instruction
-                ? `${agent.instruction.slice(0, 50)}...`
-                : "No instructions provided"}
-            </p>
+            <div className="text-sm text-default-500 space-y-2">
+              {agent.config?.systemInstruction?.parts?.map((part, index) => (
+                <p key={index}>
+                  {part.text
+                    ? `${part.text.slice(0, 100)}...`
+                    : "No instructions provided"}
+                </p>
+              )) || (
+                <p>
+                  {agent.instruction
+                    ? `${agent.instruction.slice(0, 100)}...`
+                    : "No instructions provided"}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="bg-background rounded-lg p-4 border border-default-200">

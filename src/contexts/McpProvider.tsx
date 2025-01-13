@@ -12,7 +12,6 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { z } from "zod";
 import { McpContext } from "./McpContext";
 import type { McpClientState, ServerCapabilities } from "./McpContext.types";
-import mcpConfig from "@config/mcp.config.json";
 import { getServerConfig } from "../../config/server.config";
 import type { ServerMetadata } from "../../config/types";
 
@@ -42,7 +41,6 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
   const connectServer = async (serverId: string) => {
     try {
       if (clients[serverId]?.client) {
-        console.log("Client already exists");
         return;
       }
 
@@ -55,7 +53,6 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
         },
       }));
 
-      // Create client with basic capabilities - existence of key indicates support
       const client = new Client(
         {
           name: `mcp-client-${serverId}`,
@@ -63,9 +60,15 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
         },
         {
           capabilities: {
-            tools: {},
-            prompts: {},
-            resources: {},
+            tools: {
+              listTools: true,
+            },
+            prompts: {
+              listPrompts: true,
+            },
+            resources: {
+              listResources: true,
+            },
             logging: {},
           },
         }
@@ -82,48 +85,90 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
         }));
       };
 
-      let transport;
+      client.fallbackNotificationHandler = async (notification: {
+        method: string;
+        params?: unknown;
+      }) => {
+        console.log("Notification received:", notification);
+
+        switch (notification.method) {
+          case "notifications/tools/list_changed": {
+            console.log("Tools changed notification received:", notification);
+            const result = await client.listTools();
+            console.log("New tools list:", result.tools);
+            setClients((prev) => {
+              const updated = {
+                ...prev,
+                [serverId]: {
+                  ...prev[serverId],
+                  tools: result.tools,
+                },
+              };
+              console.log("Updated client state:", updated[serverId].tools);
+              return updated;
+            });
+            break;
+          }
+
+          case "notifications/prompts/list_changed": {
+            console.log("Prompts changed notification received:", notification);
+            const result = await client.listPrompts();
+            console.log("New prompts list:", result.prompts);
+            setClients((prev) => {
+              const updated = {
+                ...prev,
+                [serverId]: {
+                  ...prev[serverId],
+                  prompts: result.prompts,
+                },
+              };
+              console.log("Updated client state:", updated[serverId].prompts);
+              return updated;
+            });
+            break;
+          }
+
+          case "notifications/resources/list_changed": {
+            console.log(
+              "Resources changed notification received:",
+              notification
+            );
+            const result = await client.listResources();
+            console.log("New resources list:", result.resources);
+            setClients((prev) => {
+              const updated = {
+                ...prev,
+                [serverId]: {
+                  ...prev[serverId],
+                  resources: result.resources,
+                },
+              };
+              console.log("Updated client state:", updated[serverId].resources);
+              return updated;
+            });
+            break;
+          }
+        }
+      };
+
       let serverType: "stdio" | "sse" = "sse";
-      let serverUrl = "";
-      let apiKey = "";
 
-      if (serverId === "systemprompt") {
-        const sseConfig = mcpConfig.sse.systemprompt;
-        serverUrl = sseConfig.url;
-        apiKey = sseConfig.apiKey;
-        const baseUrl = new URL(serverUrl);
-        baseUrl.pathname = `${baseUrl.pathname}${apiKey}`;
-        baseUrl.searchParams.append("_", Date.now().toString());
-        transport = new SSEClientTransport(baseUrl);
-        serverType = "sse";
-      } else if (serverId === "systempromptLocal") {
-        const sseConfig = mcpConfig.sse.systemprompt;
-        serverUrl = "http://localhost/v1/mcp/";
-        apiKey = sseConfig.apiKey;
-        const baseUrl = new URL(serverUrl);
-        baseUrl.pathname = `${baseUrl.pathname}${apiKey}`;
-        baseUrl.searchParams.append("_", Date.now().toString());
-        transport = new SSEClientTransport(baseUrl);
-        serverType = "sse";
-      } else {
-        // Connect through the proxy server for stdio servers
-        const proxyUrl = new URL("http://localhost:3000/sse");
-        proxyUrl.searchParams.append("transportType", "stdio");
-        proxyUrl.searchParams.append("serverId", serverId);
-        transport = new SSEClientTransport(proxyUrl);
-        serverType = "stdio";
-      }
+      const proxyUrl = new URL("http://localhost:3000/sse");
+      proxyUrl.searchParams.append("transportType", "stdio");
+      proxyUrl.searchParams.append("serverId", serverId);
+      const transport = new SSEClientTransport(proxyUrl);
 
+      serverType = "stdio";
+
+      // Connect first
       await client.connect(transport);
 
+      // Then get server info
       const serverInfo = client.getServerVersion();
       if (!serverInfo || typeof serverInfo !== "object") {
         throw new Error("Failed to get server info");
       }
-
-      console.log("Server Info received:", serverInfo);
       const capabilities = client.getServerCapabilities();
-      console.log("Server capabilities:", capabilities);
 
       // Fetch available tools, prompts, and resources based on capabilities
       let tools: McpClientState["tools"] = [];
@@ -159,8 +204,6 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
           client,
           connectionStatus: "connected",
           serverType,
-          serverUrl,
-          apiKey,
           tools,
           prompts,
           resources,
@@ -239,7 +282,6 @@ export function McpProvider({ children }: { children: React.ReactNode }) {
           prompts: result.prompts,
         },
       }));
-      console.log(result);
     } catch (error) {
       console.error("Error in listPrompts:", error);
       throw error;

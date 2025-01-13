@@ -12,7 +12,7 @@
     "lint:ts": "eslint .",
     "preview": "vite preview",
     "start": "npm run build && concurrently \"npm run proxy\" \"npm run preview\"",
-    "test": "vitest run --reporter verbose > test-output.txt",
+    "test": "vitest run --reporter verbose > output/test-output.txt",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
   },
