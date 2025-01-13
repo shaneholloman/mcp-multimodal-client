@@ -12,6 +12,19 @@
 
 A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
 
+## 🎥 Demo & Showcase
+
+Watch our video demonstration to see Systemprompt MCP Client in action:
+
+[▶️ Watch Demo Video](https://www.youtube.com/watch?v=n94JtRXXqec)
+
+The demo showcases:
+
+- Voice-controlled AI interactions
+- Multimodal input processing
+- Tool execution and workflow automation
+- Real-time voice synthesis
+
 ## 🎯� Why Systemprompt MCP?
 
 Transform your AI interactions with a powerful voice-first interface that combines the best of:
@@ -219,10 +232,6 @@ We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for deta
 - Environment-based configuration
 - Regular security updates
 - Protected server endpoints
-
-## Demo
-
-https://www.youtube.com/watch?v=n94JtRXXqec
 
 ## 📞 Support
 
