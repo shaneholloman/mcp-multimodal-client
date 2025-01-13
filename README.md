@@ -99,7 +99,7 @@ graph TD
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/systemprompt-mcp-client.git
+   git clone https://github.com/Ejb503/systemprompt-mcp-client.git
    cd systemprompt-mcp-client
    ```
 
@@ -127,16 +127,7 @@ graph TD
    - `agent.config.json`: Set up agent configurations
    - `llm.config.json`: Configure LLM settings and API keys
 
-4. Configure environment variables:
-
-   - create `.env`
-   - Set up required API keys:
-
-   ```env
-   VITE_GEMINI_API_KEY=your_api_key
-   ```
-
-5. Start the development server:
+4. Start the development server:
 
    ```bash
    npm run dev
@@ -144,7 +135,7 @@ graph TD
 
    The development server will be available at `http://localhost:5173`
 
-6. Build for production:
+5. Build for production:
    ```bash
    npm run build
    npm run preview  # Preview the production build locally
@@ -225,7 +216,7 @@ We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for deta
 ## 📞 Support
 
 - [Discord Community](https://discord.com/invite/wkAbSuPWpr)
-- [GitHub Issues](https://github.com/yourusername/systemprompt-mcp-client/issues)
+- [GitHub Issues](https://github.com/Ejb503/multimodal-mcp-client/issues)
 - [Documentation](https://systemprompt.io/documentation)
 - Email: support@systemprompt.io
 
