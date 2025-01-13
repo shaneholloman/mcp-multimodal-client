@@ -1,6 +1,6 @@
 # Systemprompt MCP Client
 
-[![npm version](https://img.shields.io/npm/v/multimodal-mcp-client.svg)](https://www.npmjs.com/package/multimodal-mcp-client)
+[![npm version](https://img.shields.io/npm/v/systemprompt-agent-server.svg)](https://www.npmjs.com/package/systemprompt-agent-server)
 [![smithery badge](https://smithery.ai/badge/multimodal-mcp-client)](https://smithery.ai/server/multimodal-mcp-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Twitter Follow](https://img.shields.io/twitter/follow/tyingshoelaces_?style=social)](https://twitter.com/tyingshoelaces_)
