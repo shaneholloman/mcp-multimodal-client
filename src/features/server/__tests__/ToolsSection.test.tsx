@@ -1,3 +1,4 @@
+import React from "react";
 import {
   render,
   screen,
@@ -8,17 +9,22 @@ import {
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ToolsSection } from "../components/sections/ToolsSection";
 import "@testing-library/jest-dom";
-import { useLogStore } from "@/stores/log-store";
+import { useLogStore } from "../../../stores/log-store";
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-interface McpTool {
-  name: string;
-  description?: string;
-  inputSchema: {
-    type: "object";
-    properties?: Record<string, { type: string; description?: string }>;
-    required?: string[];
-  };
-}
+const mockTools: Tool[] = [
+  {
+    name: "testTool",
+    description: "A test tool",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        param1: { type: "string", description: "Test parameter" },
+      },
+      required: ["param1"],
+    },
+  },
+];
 
 // Mock NextUI components
 vi.mock("@nextui-org/react", async () => {
@@ -76,7 +82,7 @@ vi.mock("@nextui-org/react", async () => {
         ...props
       }) => {
         const attrs = {
-          "data-testid": testId,
+          "data-testid": testId || `input-${label?.toLowerCase()}`,
           "aria-label": label,
           ...props,
         };
@@ -127,20 +133,6 @@ vi.mock("@/components/StatusIndicator/StatusIndicator", () => ({
     </div>
   )),
 }));
-
-const mockTools: McpTool[] = [
-  {
-    name: "testTool",
-    description: "A test tool",
-    inputSchema: {
-      type: "object",
-      properties: {
-        param1: { type: "string", description: "Test parameter" },
-      },
-      required: ["param1"],
-    },
-  },
-];
 
 describe("ToolsSection", () => {
   const mockExecuteTool = vi.fn();
@@ -301,8 +293,15 @@ describe("ToolsSection", () => {
 
     // Wait for the error message in the execution history
     await waitFor(() => {
-      expect(screen.getByText("Error")).toBeInTheDocument();
-      expect(screen.getByText("Test error")).toBeInTheDocument();
+      const historyCard = screen.getByTestId("execution-history-card");
+      expect(historyCard).toBeInTheDocument();
+
+      const errorSection = within(historyCard).getByTestId(
+        "execution-log-error"
+      );
+      expect(errorSection).toBeInTheDocument();
+      expect(within(errorSection).getByText("Error")).toBeInTheDocument();
+      expect(within(errorSection).getByText("Test error")).toBeInTheDocument();
     });
   });
 

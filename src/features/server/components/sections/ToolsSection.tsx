@@ -7,34 +7,13 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Tooltip,
 } from "@nextui-org/react";
-import { Icon } from "@iconify/react";
 import { Button, ExecuteButton, RefreshButton } from "@/components/Button";
-import { BaseCard } from "@/components/Card";
 import { ToolCard } from "@/components/Card";
-import { StatusIndicator } from "@/components/StatusIndicator/StatusIndicator";
 import { ExecutionHistoryCard } from "@/components/Card/ExecutionHistoryCard";
 import { useLogStore } from "@/stores/log-store";
-
-interface McpTool {
-  name: string;
-  description?: string;
-  inputSchema: {
-    type: "object";
-    properties?: Record<
-      string,
-      {
-        type: string;
-        description?: string;
-        items?: {
-          type: string;
-        };
-      }
-    >;
-    required?: string[];
-  };
-}
+import type { LogType } from "@/stores/log-store";
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
 interface ValidationError {
   path: string[];
@@ -42,7 +21,7 @@ interface ValidationError {
 }
 
 interface ToolsSectionProps {
-  tools: McpTool[];
+  tools: Tool[];
   onExecuteTool: (
     toolName: string,
     params: Record<string, unknown>
@@ -61,7 +40,7 @@ export function ToolsSection({
   hasListToolsCapability = false,
   error = false,
 }: ToolsSectionProps) {
-  const [selectedTool, setSelectedTool] = useState<McpTool | null>(null);
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [toolParams, setToolParams] = useState<Record<string, string>>({});
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
     []
@@ -70,16 +49,34 @@ export function ToolsSection({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { addLog } = useLogStore();
 
-  const validateParameters = () => {
+  const validateParams = (
+    tool: Tool,
+    params: Record<string, string>
+  ): ValidationError[] => {
     const errors: ValidationError[] = [];
-    if (!selectedTool?.inputSchema) return errors;
+    const properties = tool.inputSchema?.properties || {};
+    const required = (tool.inputSchema?.required as string[]) || [];
 
-    const { required = [] } = selectedTool.inputSchema;
+    // Check required fields
     required.forEach((key) => {
-      if (!toolParams[key] || toolParams[key].trim() === "") {
+      if (!params[key] || params[key].trim() === "") {
         errors.push({
           path: [key],
-          message: `${key} is required`,
+          message: "This field is required",
+        });
+      }
+    });
+
+    // Validate types
+    Object.entries(properties).forEach(([key, param]) => {
+      const value = params[key];
+      if (!value) return;
+
+      const type = (param as { type: string }).type;
+      if (type === "number" && isNaN(Number(value))) {
+        errors.push({
+          path: [key],
+          message: "This field must be a number",
         });
       }
     });
@@ -87,243 +84,166 @@ export function ToolsSection({
     return errors;
   };
 
-  const handleToolClick = (tool: McpTool) => {
+  const handleToolClick = (tool: Tool) => {
     setSelectedTool(tool);
     setValidationErrors([]);
-
-    const initialParams: Record<string, string> = {};
-    if (tool.inputSchema?.properties) {
-      Object.keys(tool.inputSchema.properties).forEach((key) => {
-        initialParams[key] = "";
-      });
-    }
-    setToolParams(initialParams);
+    setToolParams({});
     onOpen();
   };
 
-  const handleToolExecute = async () => {
+  const handleParamChange = (key: string, value: string) => {
+    setToolParams((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleExecute = async () => {
     if (!selectedTool) return;
 
-    const errors = validateParameters();
+    const errors = validateParams(selectedTool, toolParams);
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
     }
-    setValidationErrors([]);
+
     setIsExecuting(true);
-
-    const processedParams: Record<string, unknown> = {};
-    if (selectedTool.inputSchema?.properties) {
-      Object.entries(selectedTool.inputSchema.properties).forEach(
-        ([key, param]) => {
-          const value = toolParams[key];
-          if (value === undefined || value === "") return;
-
-          try {
-            switch (param.type) {
-              case "number":
-              case "integer":
-                processedParams[key] = Number(value);
-                break;
-              case "boolean":
-                processedParams[key] = value.toLowerCase() === "true";
-                break;
-              case "array":
-                // Try parsing as JSON first
-                try {
-                  processedParams[key] = JSON.parse(value);
-                } catch {
-                  // If not JSON, handle comma-separated values
-                  const items = value.split(",").map((item) => item.trim());
-                  // Convert array items based on items schema if present
-                  if (param.items?.type) {
-                    processedParams[key] = items.map((item) => {
-                      switch (param.items?.type) {
-                        case "number":
-                        case "integer":
-                          return Number(item);
-                        case "boolean":
-                          return item.toLowerCase() === "true";
-                        default:
-                          return item;
-                      }
-                    });
-                  } else {
-                    processedParams[key] = items;
-                  }
-                }
-                break;
-              case "object":
-                processedParams[key] = JSON.parse(value);
-                break;
-              default:
-                processedParams[key] = value;
-            }
-          } catch {
-            // If parsing fails, use the raw value
-            processedParams[key] = value;
-          }
-        }
-      );
-    }
-
     try {
-      const result = await onExecuteTool(selectedTool.name, processedParams);
+      const result = await onExecuteTool(selectedTool.name, toolParams);
       addLog({
-        type: "tool",
+        type: "tool" as LogType,
         operation: "Execute Tool",
         status: "success",
         name: selectedTool.name,
-        params: processedParams,
+        params: toolParams,
         result,
       });
       onClose();
     } catch (error) {
-      addLog({
-        type: "tool",
-        operation: "Execute Tool",
-        status: "error",
-        name: selectedTool.name,
-        params: processedParams,
-        error: error instanceof Error ? error.message : "An error occurred",
-      });
+      console.error("Error executing tool:", error);
+      if (error instanceof Error) {
+        addLog({
+          type: "tool" as LogType,
+          operation: "Execute Tool",
+          status: "error",
+          name: selectedTool.name,
+          params: toolParams,
+          error: error.message,
+        });
+        setValidationErrors([
+          {
+            path: [],
+            message: error.message,
+          },
+        ]);
+      }
     } finally {
       setIsExecuting(false);
     }
   };
 
-  return (
-    <BaseCard
-      icon="solar:widget-line-duotone"
-      title="Available Tools"
-      subtitle={
-        tools.length > 0
-          ? `${tools.length} tool${tools.length === 1 ? "" : "s"} available`
-          : "No tools loaded"
-      }
-      headerAction={
-        hasListToolsCapability &&
-        onFetchTools && (
-          <Tooltip content="Refresh available tools">
-            <RefreshButton
-              onPress={onFetchTools}
-              loading={isLoading}
-              data-testid="tools-refresh-button"
-            />
-          </Tooltip>
-        )
-      }
-    >
-      <div className="space-y-8">
-        {error ? (
-          <StatusIndicator
-            type="danger"
-            title="Connection Error"
-            description="Failed to connect to server. Tools are unavailable."
-            icon="solar:shield-warning-line-duotone"
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {isLoading
-              ? Array(3)
-                  .fill(null)
-                  .map((_, i) => <ToolCard key={i} isLoading />)
-              : tools.length > 0
-              ? tools.map((tool) => (
-                  <ToolCard
-                    key={tool.name}
-                    name={tool.name}
-                    description={tool.description}
-                    onExecute={() => handleToolClick(tool)}
-                  />
-                ))
-              : Array(3)
-                  .fill(null)
-                  .map((_, i) => <ToolCard key={i} isEmpty />)}
-          </div>
-        )}
+  const hasError = (key: string): boolean => {
+    return validationErrors.some((error) => error.path[0] === key);
+  };
 
-        {!error && <ExecutionHistoryCard type="tool" />}
+  const getErrorMessage = (key: string): string | undefined => {
+    const error = validationErrors.find((error) => error.path[0] === key);
+    return error?.message;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Available Tools</h2>
+        {hasListToolsCapability && onFetchTools && (
+          <RefreshButton
+            onPress={onFetchTools}
+            loading={isLoading}
+            data-testid="tools-refresh-button"
+          />
+        )}
       </div>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      {error ? (
+        <div className="text-danger">
+          <div>Connection Error</div>
+          <div>Failed to connect to server. Tools are unavailable.</div>
+        </div>
+      ) : tools.length === 0 ? (
+        <div>No tools loaded</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <ToolCard
+              key={tool.name}
+              name={tool.name}
+              description={tool.description}
+              onExecute={() => handleToolClick(tool)}
+            />
+          ))}
+        </div>
+      )}
+
+      <ExecutionHistoryCard type="tool" />
+
+      <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader>
-                <div className="flex items-center gap-3">
-                  <Icon
-                    icon="solar:play-circle-line-duotone"
-                    className="h-5 w-5 text-primary"
-                  />
-                  <div className="flex flex-col gap-1">
-                    <span>Execute Tool: {selectedTool?.name}</span>
-                    {selectedTool?.description && (
-                      <span className="text-sm text-default-500">
-                        {selectedTool.description}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <h3 className="text-lg font-semibold">
+                  {selectedTool?.name || "Execute Tool"}
+                </h3>
               </ModalHeader>
               <ModalBody>
-                <div className="flex flex-col gap-4">
-                  {validationErrors.length > 0 && (
-                    <StatusIndicator
-                      type="danger"
-                      title="Validation Errors"
-                      description={validationErrors
-                        .map(
-                          (error) =>
-                            `${
-                              error.path.length > 0
-                                ? `${error.path.join(".")}: `
-                                : ""
-                            }${error.message}`
-                        )
-                        .join(", ")}
-                    />
+                <div className="space-y-4">
+                  {selectedTool?.description && (
+                    <p className="text-sm text-gray-600">
+                      {selectedTool.description}
+                    </p>
                   )}
-                  {selectedTool?.inputSchema?.properties &&
-                    Object.entries(selectedTool.inputSchema.properties).map(
-                      ([key, param]) => {
-                        const isRequired =
-                          selectedTool.inputSchema.required?.includes(key);
-                        const error = validationErrors.find(
-                          (e) => e.path[0] === key
-                        );
-
-                        return (
-                          <Input
-                            key={key}
-                            label={`${key}${isRequired ? " *" : ""}`}
-                            placeholder={param.description || `Enter ${key}`}
-                            value={toolParams[key] || ""}
-                            type={param.type === "number" ? "number" : "text"}
-                            isRequired={isRequired}
-                            errorMessage={error?.message}
-                            isInvalid={!!error}
-                            data-testid={`input-${key}`}
-                            onChange={(e) =>
-                              setToolParams((prev) => ({
-                                ...prev,
-                                [key]: e.target.value,
-                              }))
-                            }
-                          />
-                        );
-                      }
-                    )}
+                  {Object.entries(
+                    selectedTool?.inputSchema?.properties || {}
+                  ).map(([key, param]) => (
+                    <div key={key}>
+                      <Input
+                        label={key}
+                        placeholder={
+                          (param as { description?: string })?.description
+                        }
+                        value={toolParams[key] || ""}
+                        onChange={(e) => handleParamChange(key, e.target.value)}
+                        isRequired={
+                          Array.isArray(selectedTool?.inputSchema?.required) &&
+                          selectedTool.inputSchema.required.includes(key)
+                        }
+                        isInvalid={hasError(key)}
+                        errorMessage={getErrorMessage(key)}
+                      />
+                    </div>
+                  ))}
+                  {validationErrors.length > 0 && (
+                    <div className="text-danger">
+                      <h4 className="font-semibold">Validation Errors</h4>
+                      {validationErrors.map((error, index) => (
+                        <div key={index} className="text-danger">
+                          {error.path.length > 0
+                            ? `${error.path[0]} is required`
+                            : error.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button variant="light" onPress={onClose}>
                   Cancel
                 </Button>
                 <ExecuteButton
-                  onPress={handleToolExecute}
+                  onPress={handleExecute}
                   loading={isExecuting}
-                  loadingLabel="Executing..."
+                  disabled={isExecuting}
                   label="Execute"
                 />
               </ModalFooter>
@@ -331,6 +251,6 @@ export function ToolsSection({
           )}
         </ModalContent>
       </Modal>
-    </BaseCard>
+    </div>
   );
 }

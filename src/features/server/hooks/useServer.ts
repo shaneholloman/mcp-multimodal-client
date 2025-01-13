@@ -261,7 +261,6 @@ export function useServer({ onError, serverId }: UseServerOptions): {
       if (!state.hasListPromptsCapability) return;
       try {
         await listPrompts(serverId);
-        const updatedClientState = clients[serverId];
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));
         onError?.(err);

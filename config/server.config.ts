@@ -6,12 +6,62 @@ import {
   SSEServerConfig,
   StdioServerConfig,
 } from "./types";
+import * as os from "os";
+import * as path from "path";
+
+/**
+ * Resolves environment variables in a string
+ */
+function resolveEnvVars(str: string): string {
+  return str.replace(/\${([^}]+)}/g, (_, varName) => {
+    if (varName === "NPX_PATH") {
+      // Platform-specific NPX path resolution
+      const isWindows = os.platform() === "win32";
+      return isWindows
+        ? path.join(
+            process.env.PROGRAMFILES || "C:\\Program Files",
+            "nodejs",
+            "npx.cmd"
+          )
+        : "npx";
+    }
+    return process.env[varName] || "";
+  });
+}
+
+/**
+ * Resolves platform-specific configuration for a server
+ */
+function resolveServerConfig(config: StdioServerConfig): StdioServerConfig {
+  return {
+    ...config,
+    command: resolveEnvVars(config.command),
+    args: config.args.map(resolveEnvVars),
+    env: config.env
+      ? Object.fromEntries(
+          Object.entries(config.env).map(([key, value]) => [
+            key,
+            resolveEnvVars(value),
+          ])
+        )
+      : undefined,
+  };
+}
 
 /**
  * Determines the server type based on its configuration
  */
 export function getServerType(id: string, config: McpConfig): "sse" | "stdio" {
-  return config.sse?.systemprompt ? "sse" : "stdio";
+  // Check if this server ID exists in SSE configs
+  if (config.sse && id in config.sse) {
+    return "sse";
+  }
+  // Check if this server ID exists in stdio configs
+  if (config.mcpServers && id in config.mcpServers) {
+    return "stdio";
+  }
+  // Default to stdio if not found (this maintains backward compatibility)
+  return "stdio";
 }
 
 /**
@@ -21,7 +71,12 @@ export function getRawServerConfig(
   id: string,
   config: McpConfig
 ): SSEServerConfig | StdioServerConfig | undefined {
-  return config.sse?.systemprompt || config.mcpServers[id];
+  const serverConfig = config.sse?.systemprompt || config.mcpServers[id];
+  if (!serverConfig) return undefined;
+
+  return "url" in serverConfig
+    ? serverConfig
+    : resolveServerConfig(serverConfig);
 }
 
 /**

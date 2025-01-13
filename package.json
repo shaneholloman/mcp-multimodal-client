@@ -1,7 +1,6 @@
 {
   "name": "multimodal-mcp-client",
-  "private": true,
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "scripts": {
     "proxy": "tsx --tsconfig proxy/tsconfig.json proxy/src/index.ts",

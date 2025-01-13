@@ -7,26 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.7] - 2025-01-13
 
-### Added
-
-- Added comprehensive documentation with improved README structure
-- Added new badges and links to project resources
-- Added detailed tech stack and feature documentation
-- Added security and support sections to README
-
 ### Changed
 
-- Enhanced agent configuration with improved tool and resource management
-- Optimized server connection handling and capabilities detection
-- Improved error handling and logging across components
-- Updated test output directory structure
-- Removed unnecessary console logging statements
+- Enhanced server configuration with platform-specific handling
+- Improved error handling and validation in tool execution
+- Updated documentation with clearer configuration instructions
+- Optimized test suite with better error handling and validation
 
 ### Fixed
 
-- Fixed tool selection and resource management in agent editor
-- Improved type definitions for agent configuration
-- Enhanced server metadata handling
+- Fixed test issues in ToolsSection component
+- Improved error message display in tool execution modal
+- Enhanced platform compatibility in server configuration
 
 ## [0.3.6] - 2025-01-09
 
