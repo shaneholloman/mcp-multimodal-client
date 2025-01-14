@@ -2,33 +2,48 @@
 
 [![npm version](https://img.shields.io/npm/v/systemprompt-agent-server.svg)](https://www.npmjs.com/package/systemprompt-agent-server)
 [![Linkedin](https://i.sstatic.net/gVE0j.png) LinkedIn](https://www.linkedin.com/in/edjburton/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Twitter Follow](https://img.shields.io/twitter/follow/tyingshoelaces_?style=social)](https://twitter.com/tyingshoelaces_)
 [![Discord](https://img.shields.io/discord/1255160891062620252?color=7289da&label=discord)](https://discord.com/invite/wkAbSuPWpr)
 
 [Website](https://systemprompt.io) | [Documentation](https://systemprompt.io/documentation) | [Blog](https://tyingshoelaces.com) | [Get API Key](https://systemprompt.io/console)
 
-> 🌟 **Free and Open Source Software**: A modern voice-controlled AI interface powered by Google Gemini and MCP (Model Control Protocol). Transform how you interact with AI through natural speech and multimodal inputs.
+**Free and Open Source Software**: A modern voice-controlled AI interface powered by Google Gemini and Anthropic MCP (Model Control Protocol). Transform how you interact with AI through natural speech and multimodal inputs.
 
 If you like this project, please consider starring it on GitHub and sharing it. It helps me get more visibility and support for this project and keep the lights on.
 
 A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact `with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
 
+## 📚 Table of Contents
+
+- [Demo & Showcase](#-demo--showcase)
+- [Why Systemprompt MCP?](#-why-systemprompt-mcp)
+- [Core Features](#-core-features)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [Tech Stack](#-tech-stack)
+- [Testing & Quality](#-testing--quality)
+- [Version History](#-version-history)
+- [Contributing](#-contributing)
+- [Security](#-security)
+- [Support](#-support)
+- [License](#-license)
+- [Acknowledgments](#-acknowledgments)
+- [Resources](#-resources)
+- [Extensions](#-extensions)
+
 ## 🎥 Demo & Showcase
+
+- **Voice-controlled AI interactions**
+- **Multimodal input processing**
+- **Tool execution and workflow automation**
+- **Real-time voice synthesis**
 
 Watch our video demonstration to see Systemprompt MCP Client in action:
 
-(systemprompt core extension) Voice CMS and Agent creation [▶️ Watch Demo Video](https://www.youtube.com/watch?v=n94JtRXXqec)
-(systemprompt-mcp-google Extension) Voice Agent with Google [▶️ Watch Demo Video](https://youtu.be/mC9QF6ewWJQ)
+- **Voice CMS and Agent creation**: [Watch Demo Video](https://www.youtube.com/watch?v=n94JtRXXqec)
+- **Voice Agent with Google**: [Watch Demo Video](https://youtu.be/mC9QF6ewWJQ)
 
-The demo showcases:
-
-- Voice-controlled AI interactions
-- Multimodal input processing
-- Tool execution and workflow automation
-- Real-time voice synthesis
-
-## 🎯� Why Systemprompt MCP?
+## 🎯 Why Systemprompt MCP?
 
 Transform your AI interactions with a powerful voice-first interface that combines the best of:
 
