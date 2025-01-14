@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.8] - 2025-01-14
+
+### Added
+
+- Added new utility files for multimodal agent tools
+- Added comprehensive test suite for tool mapping functionality
+- Added documentation for multimodal agent utilities
+
+### Changed
+
+- Enhanced tool-mappers with improved type safety and schema handling
+- Improved property mapping with better null and undefined handling
+- Refined function name sanitization with number support
+
 ## [0.3.7] - 2025-01-13
 
 ### Changed
