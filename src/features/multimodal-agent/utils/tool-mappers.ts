@@ -24,7 +24,7 @@ export const sanitizeFunctionName = (name: string): string => {
 
 const handleSchemaItems = (
   items: JSONSchema7Definition | JSONSchema7Definition[] | undefined
-): { type: SchemaType } => {
+): GeminiPropertyType => {
   if (!items) {
     return { type: SchemaType.STRING };
   }
@@ -37,7 +37,22 @@ const handleSchemaItems = (
     return { type: SchemaType.BOOLEAN };
   }
 
-  return { type: mapPropertyType(items).type };
+  // Handle objects with no type or properties
+  if (typeof items === "object") {
+    if (!items.type || (items.type === "object" && !items.properties)) {
+      return {
+        type: SchemaType.OBJECT,
+        properties: {
+          _data: {
+            type: SchemaType.STRING,
+            description: "Generic data field for object",
+          },
+        },
+      };
+    }
+  }
+
+  return mapPropertyType(items);
 };
 
 const getFirstValidOption = (
@@ -109,7 +124,15 @@ export const mapPropertyType = (
           properties: mapObjectProperties(schema.properties),
         };
       }
-      return { type: SchemaType.OBJECT };
+      return {
+        type: SchemaType.OBJECT,
+        properties: {
+          _data: {
+            type: SchemaType.STRING,
+            description: "Generic data field for object",
+          },
+        },
+      };
     case "boolean":
       return { type: SchemaType.BOOLEAN };
     case "null":

@@ -135,6 +135,12 @@ describe("mapPropertyType", () => {
       })
     ).toEqual({
       type: SchemaType.OBJECT,
+      properties: {
+        _data: {
+          type: SchemaType.STRING,
+          description: "Generic data field for object",
+        },
+      },
     });
   });
 
@@ -257,6 +263,86 @@ describe("mapPropertyType", () => {
   test("handles missing type by defaulting to string", () => {
     expect(mapPropertyType({})).toEqual({
       type: SchemaType.STRING,
+    });
+  });
+
+  test("maps object with no properties to include dummy _data field", () => {
+    expect(
+      mapPropertyType({
+        type: "object",
+      })
+    ).toEqual({
+      type: SchemaType.OBJECT,
+      properties: {
+        _data: {
+          type: SchemaType.STRING,
+          description: "Generic data field for object",
+        },
+      },
+    });
+  });
+
+  test("preserves existing properties when mapping object type", () => {
+    expect(
+      mapPropertyType({
+        type: "object",
+        properties: {
+          name: { type: "string", description: "The name" },
+          age: { type: "number" },
+        },
+      })
+    ).toEqual({
+      type: SchemaType.OBJECT,
+      properties: {
+        name: { type: SchemaType.STRING, description: "The name" },
+        age: { type: SchemaType.NUMBER, description: "" },
+      },
+    });
+  });
+
+  test("handles array with object items that have no properties", () => {
+    expect(
+      mapPropertyType({
+        type: "array",
+        items: {
+          type: "object",
+        },
+      })
+    ).toEqual({
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          _data: {
+            type: SchemaType.STRING,
+            description: "Generic data field for object",
+          },
+        },
+      },
+    });
+  });
+
+  test("handles array with object items that have properties", () => {
+    expect(
+      mapPropertyType({
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "number", description: "The ID" },
+            label: { type: "string" },
+          },
+        },
+      })
+    ).toEqual({
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          id: { type: SchemaType.NUMBER, description: "The ID" },
+          label: { type: SchemaType.STRING, description: "" },
+        },
+      },
     });
   });
 });

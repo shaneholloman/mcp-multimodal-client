@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9] - 2025-01-14
+
+### Changed
+
+- Enhanced object type handling in schema mapping with support for objects with no properties
+- Improved README documentation with comprehensive extension details
+- Fixed LinkedIn badge link in README
+
+### Added
+
+- Added tests for object mapping functionality with and without properties
+
 ## [0.3.8] - 2025-01-14
 
 ### Added
