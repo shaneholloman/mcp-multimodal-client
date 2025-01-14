@@ -121,6 +121,7 @@ export function AgentRegistryProvider({ children }: Props) {
   useEffect(() => {
     if (activeAgent) {
       const agent = agents.find((a) => a.name === activeAgent);
+
       if (agent) {
         setConfig((prevConfig) => ({
           ...prevConfig,
@@ -130,20 +131,20 @@ export function AgentRegistryProvider({ children }: Props) {
               {
                 text: agent.instruction,
               },
-              {
-                text: `The resources you have available are: ${JSON.stringify(
-                  activeResources,
-                  null,
-                  2
-                )}`,
-              },
-              {
-                text: `The tools you have available are: ${JSON.stringify(
-                  activeTools,
-                  null,
-                  2
-                )}`,
-              },
+              // {
+              //   text: `The resources you have available are: ${JSON.stringify(
+              //     activeResources,
+              //     null,
+              //     2
+              //   )}`,
+              // },
+              // {
+              //   text: `The tools you have available are: ${JSON.stringify(
+              //     activeTools,
+              //     null,
+              //     2
+              //   )}`,
+              // },
             ],
           },
         }));

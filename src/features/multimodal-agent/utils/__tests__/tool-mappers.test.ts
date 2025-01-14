@@ -345,6 +345,102 @@ describe("mapPropertyType", () => {
       },
     });
   });
+
+  test("handles protected keywords in property names", () => {
+    expect(
+      mapPropertyType({
+        type: "object",
+        properties: {
+          token: { type: "string", description: "Authentication token" },
+          from: { type: "string", description: "Source address" },
+          normal: { type: "string", description: "Normal property" },
+        },
+      })
+    ).toEqual({
+      type: SchemaType.OBJECT,
+      properties: {
+        safe_token: {
+          type: SchemaType.STRING,
+          description: "Authentication token",
+        },
+        safe_from: { type: SchemaType.STRING, description: "Source address" },
+        normal: { type: SchemaType.STRING, description: "Normal property" },
+      },
+    });
+  });
+
+  test("handles protected keywords in nested objects", () => {
+    expect(
+      mapPropertyType({
+        type: "object",
+        properties: {
+          auth: {
+            type: "object",
+            properties: {
+              token: { type: "string", description: "Auth token" },
+              type: { type: "string", description: "Auth type" },
+            },
+          },
+          message: {
+            type: "object",
+            properties: {
+              from: { type: "string", description: "Sender" },
+              content: { type: "string", description: "Message content" },
+            },
+          },
+        },
+      })
+    ).toEqual({
+      type: SchemaType.OBJECT,
+      properties: {
+        auth: {
+          type: SchemaType.OBJECT,
+          properties: {
+            safe_token: { type: SchemaType.STRING, description: "Auth token" },
+            type: { type: SchemaType.STRING, description: "Auth type" },
+          },
+          description: "",
+        },
+        message: {
+          type: SchemaType.OBJECT,
+          properties: {
+            safe_from: { type: SchemaType.STRING, description: "Sender" },
+            content: {
+              type: SchemaType.STRING,
+              description: "Message content",
+            },
+          },
+          description: "",
+        },
+      },
+    });
+  });
+
+  test("handles protected keywords in array object items", () => {
+    expect(
+      mapPropertyType({
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            token: { type: "string", description: "Item token" },
+            from: { type: "string", description: "Source" },
+            id: { type: "number", description: "Item ID" },
+          },
+        },
+      })
+    ).toEqual({
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          safe_token: { type: SchemaType.STRING, description: "Item token" },
+          safe_from: { type: SchemaType.STRING, description: "Source" },
+          id: { type: SchemaType.NUMBER, description: "Item ID" },
+        },
+      },
+    });
+  });
 });
 
 describe("mapToolProperties", () => {

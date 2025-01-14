@@ -1,68 +1,62 @@
-# Tool Mappers
+# Multimodal Agent Utilities
 
-This directory contains utilities for mapping MCP tool schemas to Gemini's function calling format.
+This directory contains utility functions for the multimodal agent implementation, particularly focusing on mapping between JSON Schema and Gemini's type system.
 
-## Key Components
+## Tool Mappers
 
-### `tool-mappers.ts`
+The `tool-mappers.ts` file provides functionality to convert JSON Schema definitions to Gemini-compatible format, with special handling for various schema types and protected keywords.
 
-Contains utilities for converting JSON Schema 7 tool definitions to Gemini's function calling format.
+### Protected Keywords
 
-#### Schema Handling
+When mapping property names, certain keywords are protected and automatically prefixed with `safe_` to prevent conflicts:
 
-- **Basic Types**: Directly maps JSON Schema types to Gemini SchemaTypes
+- `from` → `safe_from`
 
-  - string → SchemaType.STRING
-  - number/integer → SchemaType.NUMBER
-  - boolean → SchemaType.BOOLEAN
-  - array → SchemaType.ARRAY
-  - object → SchemaType.OBJECT
-  - null → SchemaType.STRING
+This transformation is applied recursively to all object properties, including nested objects and array items.
 
-- **Complex Types**:
-  - `oneOf`: Takes the first option in the oneOf array as the schema to use
-  - `anyOf`: Similar to oneOf, takes the first option
-  - Nested objects: Recursively maps properties
-  - Arrays: Maps item types recursively, handling single items, item arrays, and boolean schemas
-  - Boolean schemas: Maps directly to SchemaType.BOOLEAN
-  - Type arrays: Takes the first type in the array (e.g., `type: ["string", "null"]` becomes `SchemaType.STRING`)
+### Key Functions
 
-#### Type Safety
+- `mapPropertyType`: Converts JSON Schema types to Gemini schema types
+- `mapToolProperties`: Maps MCP tool definitions to Gemini-compatible format
+- `safePropertyName`: Handles protected keyword transformation
+- `sanitizeFunctionName`: Ensures function names are valid identifiers
 
-The mapper uses TypeScript types from the `json-schema` package:
-
-- `JSONSchema7`: Full JSON Schema 7 type definition
-- `JSONSchema7Definition`: Union type for all possible schema values
-
-Custom types:
-
-- `GeminiPropertyType`: Defines the shape of mapped Gemini properties
-- Proper handling of schema items through `handleSchemaItems` helper
-
-#### Important Note
-
-For `oneOf` and `anyOf` schemas, the mapper uses the first option in the array. This is a simplification that works well for most cases where the options are variants of the same base schema (e.g., different connection types with shared properties).
-
-Example:
+### Example Usage
 
 ```typescript
-// Input schema with oneOf
-{
-  "oneOf": [
-    { type: "object", properties: { name: { type: "string" } } },
-    { type: "object", properties: { id: { type: "number" } } }
-  ]
-}
+import { mapToolsToGeminiFormat } from "./tool-mappers";
 
-// Will be mapped using the first option to:
-{
-  type: SchemaType.OBJECT,
-  properties: {
-    name: { type: SchemaType.STRING }
-  }
-}
+const tools = [
+  {
+    name: "auth",
+    description: "Authentication tool",
+    inputSchema: {
+      type: "object",
+      properties: {
+        token: { type: "string" }, // Will be mapped to safe_token
+        from: { type: "string" }, // Will be mapped to safe_from
+      },
+    },
+  },
+];
+
+const geminiTools = mapToolsToGeminiFormat(tools);
 ```
 
-#### Default Message Parameter
+### Type Mappings
 
-If a tool schema has no required fields, the mapper adds a default `_message` parameter of type string. This ensures all tools have at least one parameter for basic interaction.
+| JSON Schema Type | Gemini Type |
+| ---------------- | ----------- |
+| string           | STRING      |
+| number/integer   | NUMBER      |
+| boolean          | BOOLEAN     |
+| array            | ARRAY       |
+| object           | OBJECT      |
+| null             | STRING      |
+
+### Special Cases
+
+1. Objects with no properties get a default `_data` field
+2. Arrays with no item type default to STRING items
+3. Protected keywords are automatically prefixed with `safe_`
+4. Required fields are preserved in the mapping

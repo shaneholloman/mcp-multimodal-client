@@ -250,60 +250,26 @@ describe("Celigo Schema Mapping", () => {
                       type: SchemaType.STRING,
                       description: "Authentication type",
                     },
-                    basic: {
-                      type: SchemaType.OBJECT,
-                      description: "",
-                      properties: {
-                        username: {
-                          type: SchemaType.STRING,
-                          description: "Basic/Digest auth username",
-                        },
-                        password: {
-                          type: SchemaType.STRING,
-                          description: "Basic/Digest auth password",
-                        },
-                      },
+                    safe_token: {
+                      type: SchemaType.STRING,
+                      description: "Authentication token",
                     },
-                    cookie: {
-                      type: SchemaType.OBJECT,
-                      description: "",
-                      properties: {
-                        uri: {
-                          type: SchemaType.STRING,
-                          description: "Cookie auth URI",
-                        },
-                        method: {
-                          type: SchemaType.STRING,
-                          description: "HTTP method for cookie auth",
-                        },
-                      },
+                    location: {
+                      type: SchemaType.STRING,
+                      description: "Token location (body, header, or url)",
                     },
-                    token: {
-                      type: SchemaType.OBJECT,
-                      description: "",
-                      properties: {
-                        token: {
-                          type: SchemaType.STRING,
-                          description: "Authentication token",
-                        },
-                        location: {
-                          type: SchemaType.STRING,
-                          description: "Token location (body, header, or url)",
-                        },
-                        headerName: {
-                          type: SchemaType.STRING,
-                          description: "Header name when using header location",
-                        },
-                        scheme: {
-                          type: SchemaType.STRING,
-                          description:
-                            "Authentication scheme (Bearer, custom, mac, None, or space for no scheme)",
-                        },
-                        paramName: {
-                          type: SchemaType.STRING,
-                          description: "Parameter name for token",
-                        },
-                      },
+                    headerName: {
+                      type: SchemaType.STRING,
+                      description: "Header name when using header location",
+                    },
+                    scheme: {
+                      type: SchemaType.STRING,
+                      description:
+                        "Authentication scheme (Bearer, custom, mac, None, or space for no scheme)",
+                    },
+                    paramName: {
+                      type: SchemaType.STRING,
+                      description: "Parameter name for token",
                     },
                   },
                 },

@@ -2,6 +2,16 @@ import { SchemaType } from "@google/generative-ai";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 
+// Protected keywords that need to be prefixed with "safe_"
+const PROTECTED_KEYWORDS = ["token", "from"];
+
+const safePropertyName = (name: string): string => {
+  if (PROTECTED_KEYWORDS.includes(name)) {
+    return `safe_${name}`;
+  }
+  return name;
+};
+
 type GeminiPropertyType = {
   type: SchemaType;
   items?: { type: SchemaType };
@@ -74,7 +84,7 @@ const mapObjectProperties = (
   return Object.entries(properties).reduce(
     (acc, [key, value]) => ({
       ...acc,
-      [key]: {
+      [safePropertyName(key)]: {
         ...mapPropertyType(value),
         description: typeof value === "object" ? value.description || "" : "",
       },
