@@ -1,7 +1,7 @@
 # Systemprompt MCP Client
 
 [![npm version](https://img.shields.io/npm/v/systemprompt-agent-server.svg)](https://www.npmjs.com/package/systemprompt-agent-server)
-[![smithery badge](https://smithery.ai/badge/multimodal-mcp-client)](https://smithery.ai/server/multimodal-mcp-client)
+[![Linkedin](https://i.sstatic.net/gVE0j.png) LinkedIn](https://www.linkedin.com/in/edjburton/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Twitter Follow](https://img.shields.io/twitter/follow/tyingshoelaces_?style=social)](https://twitter.com/tyingshoelaces_)
 [![Discord](https://img.shields.io/discord/1255160891062620252?color=7289da&label=discord)](https://discord.com/invite/wkAbSuPWpr)
@@ -10,13 +10,16 @@
 
 > 🌟 **Free and Open Source Software**: A modern voice-controlled AI interface powered by Google Gemini and MCP (Model Control Protocol). Transform how you interact with AI through natural speech and multimodal inputs.
 
-A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
+If you like this project, please consider starring it on GitHub and sharing it. It helps me get more visibility and support for this project and keep the lights on.
+
+A modern Vite + TypeScript application that enables voice-controlled AI workflows through MCP (Model Control Protocol). This project revolutionizes how you interact `with AI systems by combining Google Gemini's multimodal capabilities with MCP's extensible tooling system.
 
 ## 🎥 Demo & Showcase
 
 Watch our video demonstration to see Systemprompt MCP Client in action:
 
-[▶️ Watch Demo Video](https://www.youtube.com/watch?v=n94JtRXXqec)
+(systemprompt core extension) Voice CMS and Agent creation [▶️ Watch Demo Video](https://www.youtube.com/watch?v=n94JtRXXqec)
+(systemprompt-mcp-google Extension) Voice Agent with Google [▶️ Watch Demo Video](https://youtu.be/mC9QF6ewWJQ)
 
 The demo showcases:
 
@@ -273,3 +276,64 @@ We're actively working on expanding the capabilities of Systemprompt MCP Client 
 - **Team Collaboration Features**: Multi-user support and shared workflows
 
 Stay tuned for updates and new releases! Follow us on [GitHub](https://github.com/Ejb503/multimodal-mcp-client) or join our [Discord community](https://discord.com/invite/wkAbSuPWpr) for the latest news.
+
+## 🔌 Installing Extensions
+
+To install extensions, follow these steps:
+
+1. **Navigate to the `extensions` folder**:
+
+   ```bash
+   cd extensions
+   ```
+
+2. **Clone the desired extension repository**:
+
+   ```bash
+   git clone <repository-url>
+   ```
+
+3. **Follow the installation instructions provided in the cloned repository**.
+
+4. **Update the configuration**:
+   - Add a link to Node/Python in the `config/mcp.config.json` or `config/mcp.config.default.json`.
+
+## 🌐 systemprompt-mcp-google Extension
+
+[![npm version](https://img.shields.io/npm/v/systemprompt-mcp-google.svg)](https://www.npmjs.com/package/systemprompt-mcp-google)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Twitter Follow](https://img.shields.io/twitter/follow/tyingshoelaces_?style=social)](https://twitter.com/tyingshoelaces_)
+[![Discord](https://img.shields.io/discord/1255160891062620252?color=7289da&label=discord)](https://discord.com/invite/wkAbSuPWpr)
+
+A specialized Model Context Protocol (MCP) server that integrates Google services (Gmail, Calendar, etc.) into your AI workflows. This server enables seamless access to Google services through MCP, allowing AI agents to interact with Gmail, Google Calendar, and other Google services.
+
+### Prerequisites
+
+- **Systemprompt API Key**: Sign up at [systemprompt.io/console](https://systemprompt.io/console) and create a new API key.
+- **MCP-Compatible Client**: Use the [Systemprompt MCP Client](https://github.com/Ejb503/multimodal-mcp-client) or any other MCP-compatible client.
+- **Google Cloud Project**: Set up a Google Cloud account, enable API access, and configure OAuth2 credentials.
+
+### Setup
+
+1. **Google Cloud Setup**:
+
+   - Create a project in [Google Cloud Console](https://console.cloud.google.com).
+   - Enable Gmail, Calendar, and Drive APIs.
+   - Create OAuth2 credentials and download the JSON file as `credentials/google-credentials.json`.
+
+2. **Server Configuration**:
+   - Install the package: `npm install systemprompt-mcp-google`.
+   - Create the credentials directory: `mkdir -p credentials`.
+   - Run the authentication script: `npm run auth-google`.
+
+### Features
+
+- **Gmail Integration**: Read, send, and manage emails.
+- **Calendar Integration**: Create and manage events.
+- **MCP Integration**: Standard MCP interface with structured command responses.
+
+### Usage
+
+- **Through MCP Client**: Use any MCP client to send commands to this server for Gmail and Calendar operations.
+
+For detailed setup and usage instructions, refer to the [systemprompt-mcp-google documentation](https://systemprompt.io/documentation).

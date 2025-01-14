@@ -148,24 +148,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling in LiveAPIContext
 - Enhanced type safety across components
 
-## [0.3.0] - 2025-01-08
-
-### Added
-
-- Added collapsible sidebar functionality with compact view
-- Added agent selector dropdown in control tray
-- Added new application icons (icon.png, icon.svg)
-- Added new test file for sidebar items
+## [0.4.0] - 2025-01-14
 
 ### Changed
 
-- Updated navigation icons and styling for better UX
-- Improved button states and loading indicators
-- Updated page title and metadata with better SEO
-- Updated agent execution route from `/agents/execute/:agentName` to `/agent/:id`
-- Refined control tray UI with modern styling
+- Updated README.md with new demo video links and extension installation instructions.
+- Modified `config/mcp.config.default.json` to include example-extension configuration.
 
-### Fixed
+### Removed
 
-- Improved button loading state display in DynamicButton
-- Enhanced sidebar item styling and accessibility
+- Deleted `src/features/multimodal-agent/utils/show-mapping.ts` as it is no longer needed.

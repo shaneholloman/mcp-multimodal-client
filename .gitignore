@@ -53,3 +53,7 @@ agent/
 
 # Coverage
 coverage/
+
+# Scripts
+scripts/*
+scripts
