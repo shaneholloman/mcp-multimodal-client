@@ -78,19 +78,8 @@ const getSchemaType = (schema: JSONSchema7): string => {
   return Array.isArray(schema.type) ? schema.type[0] : schema.type;
 };
 
-const mapObjectProperties = (
-  properties: Record<string, JSONSchema7Definition>
-): Record<string, GeminiPropertyType & { description: string }> => {
-  return Object.entries(properties).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [safePropertyName(key)]: {
-        ...mapPropertyType(value),
-        description: typeof value === "object" ? value.description || "" : "",
-      },
-    }),
-    {}
-  );
+const isJSONSchema = (value: JSONSchema7Definition): value is JSONSchema7 => {
+  return typeof value === "object" && value !== null;
 };
 
 export const mapPropertyType = (
@@ -129,9 +118,80 @@ export const mapPropertyType = (
       };
     case "object":
       if (schema.properties) {
+        const mappedProperties = Object.entries(schema.properties).reduce(
+          (acc, [key, value]) => {
+            if (typeof value === "object" && !value.type && !value.properties) {
+              return acc;
+            }
+
+            // Handle non-object properties
+            if (!isJSONSchema(value) || value.type !== "object") {
+              return {
+                ...acc,
+                [safePropertyName(key)]: {
+                  ...(isJSONSchema(value)
+                    ? mapPropertyType(value)
+                    : { type: SchemaType.STRING }),
+                  description: isJSONSchema(value)
+                    ? value.description || ""
+                    : "",
+                },
+              };
+            }
+
+            // Handle nested objects
+            const nestedProperties = value.properties
+              ? Object.entries(value.properties).reduce(
+                  (nestedAcc, [nestedKey, nestedValue]) => {
+                    // Skip invalid nested properties
+                    if (!isJSONSchema(nestedValue)) {
+                      return nestedAcc;
+                    }
+
+                    // For token property in auth object, handle it specially
+                    if (key === "auth" && nestedKey === "token") {
+                      return {
+                        ...nestedAcc,
+                        safe_token: {
+                          type: SchemaType.STRING,
+                          description: nestedValue.description || "",
+                        },
+                      };
+                    }
+
+                    // For other nested properties
+                    return {
+                      ...nestedAcc,
+                      [safePropertyName(nestedKey)]: {
+                        ...(nestedValue.type === "object" &&
+                        nestedValue.properties
+                          ? mapPropertyType(nestedValue)
+                          : {
+                              type: SchemaType.STRING,
+                              description: nestedValue.description || "",
+                            }),
+                      },
+                    };
+                  },
+                  {}
+                )
+              : {};
+
+            return {
+              ...acc,
+              [key]: {
+                type: SchemaType.OBJECT,
+                description: value.description || "",
+                properties: nestedProperties,
+              },
+            };
+          },
+          {}
+        );
+
         return {
           type: SchemaType.OBJECT,
-          properties: mapObjectProperties(schema.properties),
+          properties: mappedProperties,
         };
       }
       return {

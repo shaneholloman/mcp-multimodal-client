@@ -1,20 +1,12 @@
 import { useState } from "react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Tooltip,
-} from "@nextui-org/react";
-import { Icon } from "@iconify/react";
+import { Tooltip } from "@nextui-org/react";
 import { BaseCard } from "@/components/Card";
 import { StatusIndicator } from "@/components/StatusIndicator/StatusIndicator";
 import { ToolCard } from "@/components/Card";
-import { RefreshButton, Button, ExecuteButton } from "@/components/Button";
+import { RefreshButton } from "@/components/Button";
 import { ExecutionHistoryCard } from "@/components/Card/ExecutionHistoryCard";
 import { useLogStore } from "@/stores/log-store";
+import { ContentModal } from "@/components/Modal/ContentModal";
 
 interface Resource {
   name: string;
@@ -44,7 +36,7 @@ export function ResourcesSection({
     null
   );
   const [isExecuting, setIsExecuting] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
   const { addLog } = useLogStore();
 
   if (!hasListResourcesCapability) {
@@ -53,7 +45,7 @@ export function ResourcesSection({
 
   const handleResourceClick = (resource: Resource) => {
     setSelectedResource(resource);
-    onOpen();
+    setIsOpen(true);
   };
 
   const handleResourceRead = async () => {
@@ -69,7 +61,7 @@ export function ResourcesSection({
         name: selectedResource.name,
         result,
       });
-      onClose();
+      setIsOpen(false);
       setSelectedResource(null);
     } catch (error) {
       addLog({
@@ -97,7 +89,11 @@ export function ResourcesSection({
       }
       headerAction={
         <Tooltip content="Refresh available resources">
-          <RefreshButton onPress={onFetchResources} loading={isLoading} />
+          <RefreshButton
+            onPress={onFetchResources}
+            loading={isLoading}
+            aria-label="Refresh resources list"
+          />
         </Tooltip>
       }
     >
@@ -124,6 +120,7 @@ export function ResourcesSection({
                   type={resource.type || "Resource"}
                   onExecute={() => handleResourceClick(resource)}
                   actionLabel="Read Resource"
+                  aria-label={`Resource: ${resource.name}`}
                 />
               ))
             ) : (
@@ -140,44 +137,34 @@ export function ResourcesSection({
         {!error && <ExecutionHistoryCard type="system" />}
       </div>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>
-                <div className="flex items-center gap-3">
-                  <Icon
-                    icon="solar:book-line-duotone"
-                    className="h-5 w-5 text-primary"
-                  />
-                  <div className="flex flex-col gap-1">
-                    <span>Read Resource: {selectedResource?.name}</span>
-                    {selectedResource?.description && (
-                      <span className="text-sm text-default-500">
-                        {selectedResource.description}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                <p>Are you sure you want to read this resource?</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <ExecuteButton
-                  onPress={handleResourceRead}
-                  loading={isExecuting}
-                  label="Read"
-                  loadingLabel="Reading..."
-                />
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <ContentModal
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+          setSelectedResource(null);
+        }}
+        title={selectedResource?.name || "Read Resource"}
+        sections={[
+          {
+            title: "Confirm Action",
+            content: "Are you sure you want to read this resource?",
+          },
+          ...(selectedResource?.description
+            ? [
+                {
+                  title: "Description",
+                  content: selectedResource.description,
+                },
+              ]
+            : []),
+        ]}
+        primaryAction={{
+          label: "Read",
+          loadingLabel: "Reading...",
+          onClick: handleResourceRead,
+          isLoading: isExecuting,
+        }}
+      />
     </BaseCard>
   );
 }
