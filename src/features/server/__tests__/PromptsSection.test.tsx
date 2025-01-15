@@ -1,13 +1,14 @@
+import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PromptsSection } from "../components/sections/PromptsSection";
-import { useMcp } from "@/contexts/McpContext";
-import { useGlobalLlm } from "@/contexts/LlmProviderContext";
-import { useLogStore } from "@/stores/log-store";
+import { useMcp } from "../../../contexts/McpContext";
+import { useGlobalLlm } from "../../../contexts/LlmProviderContext";
+import { useLogStore } from "../../../stores/log-store";
 
-vi.mock("@/contexts/McpContext");
-vi.mock("@/contexts/LlmProviderContext");
-vi.mock("@/stores/log-store");
+vi.mock("../../../contexts/McpContext");
+vi.mock("../../../contexts/LlmProviderContext");
+vi.mock("../../../stores/log-store");
 
 describe("PromptsSection", () => {
   const mockPrompt = {
@@ -101,7 +102,10 @@ describe("PromptsSection", () => {
     expect(modalDescription).toHaveTextContent("Test prompt description");
 
     // Verify the modal title
-    expect(screen.getByText("View Prompt: testPrompt")).toBeInTheDocument();
+    expect(screen.getByText("View Prompt")).toBeInTheDocument();
+    expect(screen.getByTestId("prompt-modal-title")).toHaveTextContent(
+      "testPrompt"
+    );
 
     // Verify the getPrompt was called
     expect(mockMcpClient.getPrompt).toHaveBeenCalledWith("testPrompt");

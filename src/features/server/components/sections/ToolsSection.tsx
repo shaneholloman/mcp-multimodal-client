@@ -131,9 +131,9 @@ export function ToolsSection({
         hasListToolsCapability &&
         onFetchTools && (
           <RefreshButton
-            onPress={onFetchTools}
-            loading={isLoading}
-            aria-label="Refresh tools list"
+            onClick={onFetchTools}
+            isLoading={isLoading}
+            data-testid="tools-refresh-button"
           />
         )
       }
@@ -181,7 +181,7 @@ export function ToolsSection({
             primaryAction={{
               label: "Execute",
               loadingLabel: "Executing...",
-              onClick: handleExecute,
+              onPress: handleExecute,
               isLoading: isExecuting,
             }}
           />

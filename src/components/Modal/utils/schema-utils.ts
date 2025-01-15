@@ -85,79 +85,6 @@ export function validateFieldValue(
   return errors;
 }
 
-function validateRequiredFields(
-  schema: JSONSchema7,
-  value: unknown,
-  path: string[] = []
-): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  if (typeof value !== "object" || value === null) {
-    return errors;
-  }
-
-  if (schema.required) {
-    for (const requiredField of schema.required) {
-      const fieldValue = (value as Record<string, unknown>)[requiredField];
-      if (fieldValue === undefined || fieldValue === "") {
-        errors.push({
-          path: [...path, requiredField],
-          message: "This field is required",
-        });
-      }
-    }
-  }
-
-  return errors;
-}
-
-function validateEnumField(
-  schema: JSONSchema7,
-  value: unknown,
-  path: string[]
-): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  if (
-    schema.enum &&
-    value !== undefined &&
-    value !== null &&
-    !schema.enum.includes(value as string | number | boolean | null)
-  ) {
-    errors.push({
-      path,
-      message: `Must be one of: ${schema.enum.join(", ")}`,
-    });
-  }
-
-  return errors;
-}
-
-function validateTypeField(
-  schema: JSONSchema7,
-  value: unknown,
-  path: string[]
-): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  if (value === undefined || value === "") {
-    return errors;
-  }
-
-  if (
-    schema.type === "number" &&
-    typeof value === "string" &&
-    isNaN(Number(value))
-  ) {
-    errors.push({
-      path,
-      message: "Must be a number",
-    });
-  }
-
-  return errors;
-}
-
 export function validateSchema(
   schema: JSONSchema7Definition,
   formData: Record<string, unknown>,
@@ -167,62 +94,73 @@ export function validateSchema(
 
   const errors: ValidationError[] = [];
 
-  // Handle oneOf validation
+  // Handle oneOf validation at schema level
   if (schema.oneOf) {
-    const selectedType = (formData.type || "") as string;
+    const typeValue = formData.type;
     const matchingSchema = schema.oneOf.find((subSchema) => {
       if (typeof subSchema === "boolean") return false;
       if (!subSchema.properties?.type) return false;
       const typeSchema = subSchema.properties.type as JSONSchema7;
-      return typeSchema.const === selectedType;
+      return typeSchema.const === typeValue;
     });
 
-    if (matchingSchema && typeof matchingSchema !== "boolean") {
-      errors.push(...validateSchema(matchingSchema, formData, path));
+    if (!matchingSchema) {
+      errors.push({
+        path: [...path, "type"],
+        message: `Invalid value for discriminator field`,
+      });
+    } else if (typeof matchingSchema !== "boolean") {
+      // Validate against the matching schema
+      const schemaErrors = validateSchema(matchingSchema, formData, path);
+      errors.push(...schemaErrors);
+      return errors; // Return early since we've validated against the matching schema
     }
   }
 
-  // Handle object validation
-  if (schema.type === "object" && schema.properties) {
-    // Add required field validation errors
-    errors.push(...validateRequiredFields(schema, formData, path));
-
-    // Validate each property
-    Object.entries(schema.properties).forEach(([key, propSchema]) => {
-      if (typeof propSchema === "boolean") return;
-
-      const newPath = [...path, key];
-      const value = (formData || {})[key];
-
-      // Add enum validation errors
-      errors.push(...validateEnumField(propSchema, value, newPath));
-
-      // Add type validation errors
-      errors.push(...validateTypeField(propSchema, value, newPath));
-
-      // Recursively validate nested objects
-      if (propSchema.type === "object" && value && typeof value === "object") {
-        errors.push(
-          ...validateSchema(
-            propSchema,
-            value as Record<string, unknown>,
-            newPath
-          )
-        );
+  // Handle required fields at current level
+  if (schema.required) {
+    for (const requiredField of schema.required) {
+      const fieldValue = formData[requiredField];
+      if (fieldValue === undefined || fieldValue === "") {
+        errors.push({
+          path: [...path, requiredField],
+          message: "This field is required",
+        });
       }
-    });
+    }
   }
 
-  // Remove duplicate errors
-  return errors.filter(
-    (error, index, self) =>
-      index ===
-      self.findIndex(
-        (e) =>
-          e.path.join(".") === error.path.join(".") &&
-          e.message === error.message
-      )
-  );
+  // Handle properties validation
+  if (schema.properties) {
+    for (const [key, value] of Object.entries(formData)) {
+      const propertySchema = schema.properties[key];
+      if (propertySchema) {
+        // Validate field value
+        const fieldErrors = validateFieldValue(
+          propertySchema as JSONSchema7,
+          [...path, key],
+          value
+        );
+        errors.push(...fieldErrors);
+
+        // Recursively validate nested objects
+        if (
+          typeof propertySchema === "object" &&
+          propertySchema.type === "object" &&
+          typeof value === "object"
+        ) {
+          const nestedErrors = validateSchema(
+            propertySchema,
+            value as Record<string, unknown>,
+            [...path, key]
+          );
+          errors.push(...nestedErrors);
+        }
+      }
+    }
+  }
+
+  return errors;
 }
 
 export function getDiscriminatorSchema(schema: JSONSchema7Definition): {

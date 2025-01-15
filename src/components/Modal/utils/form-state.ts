@@ -4,6 +4,7 @@ export function getValueAtPath(
   obj: Record<string, unknown>,
   path: string[]
 ): unknown {
+  if (path.length === 0) return undefined;
   return path.reduce((current: unknown, key) => {
     if (current && typeof current === "object") {
       return (current as Record<string, unknown>)[key];

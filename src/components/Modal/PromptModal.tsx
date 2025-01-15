@@ -76,14 +76,14 @@ export function PromptModal({
                   className="h-5 w-5 text-primary"
                 />
                 <div className="flex flex-col gap-1">
-                  <span>{title}</span>
+                  <h3 data-testid="prompt-modal-title">{title}</h3>
                   {description && (
-                    <span
-                      className="text-sm text-default-500"
+                    <p
                       data-testid="prompt-modal-description"
+                      className="text-sm text-default-500"
                     >
                       {description}
-                    </span>
+                    </p>
                   )}
                 </div>
               </div>

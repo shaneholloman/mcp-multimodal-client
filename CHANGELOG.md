@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.12] - 2025-01-15
+
+### Added
+
+- Added protected keywords handling in tool mappers to safely transform property names
+- Added comprehensive tests for protected keyword handling in various scenarios
+
+### Changed
+
+- Modified property mapping to automatically prefix protected keywords with "safe\_"
+
+### Removed
+
+- Deleted `src/features/server/components/sections/ServerCapabilities.new.tsx` as it is no longer needed
+
+### Fixed
+
+- Improved error handling in tool execution and prompt handling
+
 ## [0.3.10] - 2025-01-14
 
 ### Added

@@ -29,7 +29,7 @@ interface ToolModalProps {
   primaryAction: {
     label: string;
     loadingLabel: string;
-    onClick: () => Promise<void>;
+    onPress: () => Promise<void>;
     isLoading: boolean;
   };
 }
@@ -40,7 +40,7 @@ export function ToolModal({
   tool,
   parameterValues,
   onParameterChange,
-  validationErrors: externalValidationErrors,
+  validationErrors: externalValidationErrors = [],
   primaryAction,
 }: ToolModalProps) {
   const { values, errors, setFieldValue, setValues } = useSchemaForm({
@@ -158,7 +158,7 @@ export function ToolModal({
                 Cancel
               </Button>
               <ExecuteButton
-                onPress={primaryAction.onClick}
+                onPress={primaryAction.onPress}
                 loading={primaryAction.isLoading}
                 label={primaryAction.label}
                 loadingLabel={primaryAction.loadingLabel}

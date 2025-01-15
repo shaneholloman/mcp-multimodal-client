@@ -74,7 +74,7 @@ describe("FormField", () => {
       />
     );
 
-    const select = screen.getByRole("combobox", { name: "Select option" });
+    const select = screen.getByRole("button", { name: "Select option" });
     expect(select).toBeInTheDocument();
   });
 
@@ -149,8 +149,16 @@ describe("FormField", () => {
       />
     );
 
-    const select = screen.getByRole("combobox", { name: "Select option" });
-    fireEvent.change(select, { target: { value: "option2" } });
+    // Open select dropdown
+    const select = screen.getByRole("button", { name: "Select option" });
+    fireEvent.click(select);
+
+    // Find and click option using the hidden select container
+    const hiddenSelect = screen
+      .getByTestId("hidden-select-container")
+      .querySelector("select");
+    if (!hiddenSelect) throw new Error("Hidden select not found");
+    fireEvent.change(hiddenSelect, { target: { value: "option2" } });
 
     expect(onChange).toHaveBeenCalledWith(["test"], "option2");
   });

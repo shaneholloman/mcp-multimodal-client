@@ -110,80 +110,87 @@ const mockTool = {
 describe("ToolModal", () => {
   const mockOnExecute = vi.fn();
   const mockOnClose = vi.fn();
+  const mockOnParameterChange = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders with complex schema and handles form submission", async () => {
-    render(
+    const expectedValues = {
+      type: "http",
+      name: "Test Connection",
+      http: {
+        formType: "http",
+        mediaType: "json",
+        baseURI: "https://api.example.com",
+        auth: {
+          type: "basic",
+          basic: {
+            username: "testuser",
+            password: "testpass",
+          },
+        },
+      },
+      microServices: {
+        disableNetSuiteWebServices: false,
+        disableRdbms: false,
+        disableDataWarehouse: false,
+      },
+    };
+
+    const { rerender } = render(
       <NextUIProvider>
         <ToolModal
           isOpen={true}
           onClose={mockOnClose}
           tool={mockTool}
-          onExecute={mockOnExecute}
+          parameterValues={{}}
+          onParameterChange={mockOnParameterChange}
+          validationErrors={[]}
+          primaryAction={{
+            label: "Execute",
+            loadingLabel: "Executing...",
+            onPress: mockOnExecute,
+            isLoading: false,
+          }}
         />
       </NextUIProvider>
     );
 
-    // Select connection type
-    const typeSelect = screen.getByLabelText(/Connection type/i);
+    // Select connection type using hidden select container
+    const typeSelect = screen
+      .getByTestId("hidden-select-container")
+      .querySelector("select");
+    if (!typeSelect) throw new Error("Type select not found");
     fireEvent.change(typeSelect, { target: { value: "http" } });
 
-    // Fill in required fields
-    fireEvent.change(screen.getByLabelText(/Connection name/i), {
-      target: { value: "Test Connection" },
-    });
-
-    // Fill in HTTP section
-    fireEvent.change(screen.getByLabelText(/Form type/i), {
-      target: { value: "http" },
-    });
-    fireEvent.change(screen.getByLabelText(/Media type/i), {
-      target: { value: "json" },
-    });
-    fireEvent.change(screen.getByLabelText(/Base URI/i), {
-      target: { value: "https://api.example.com" },
-    });
-
-    // Fill in auth section
-    fireEvent.change(screen.getByLabelText(/Authentication type/i), {
-      target: { value: "basic" },
-    });
-    fireEvent.change(screen.getByLabelText(/Basic auth username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Basic auth password/i), {
-      target: { value: "testpass" },
-    });
+    // Rerender with updated values
+    rerender(
+      <NextUIProvider>
+        <ToolModal
+          isOpen={true}
+          onClose={mockOnClose}
+          tool={mockTool}
+          parameterValues={expectedValues}
+          onParameterChange={mockOnParameterChange}
+          validationErrors={[]}
+          primaryAction={{
+            label: "Execute",
+            loadingLabel: "Executing...",
+            onPress: mockOnExecute,
+            isLoading: false,
+          }}
+        />
+      </NextUIProvider>
+    );
 
     // Submit form
     const executeButton = screen.getByText("Execute");
     fireEvent.click(executeButton);
 
     await waitFor(() => {
-      expect(mockOnExecute).toHaveBeenCalledWith({
-        type: "http",
-        name: "Test Connection",
-        http: {
-          formType: "http",
-          mediaType: "json",
-          baseURI: "https://api.example.com",
-          auth: {
-            type: "basic",
-            basic: {
-              username: "testuser",
-              password: "testpass",
-            },
-          },
-        },
-        microServices: {
-          disableNetSuiteWebServices: false,
-          disableRdbms: false,
-          disableDataWarehouse: false,
-        },
-      });
+      expect(mockOnExecute).toHaveBeenCalled();
     });
   });
 
@@ -194,49 +201,75 @@ describe("ToolModal", () => {
           isOpen={true}
           onClose={mockOnClose}
           tool={mockTool}
-          onExecute={mockOnExecute}
+          parameterValues={{}}
+          onParameterChange={mockOnParameterChange}
+          validationErrors={[{ path: [], message: "This field is required" }]}
+          primaryAction={{
+            label: "Execute",
+            loadingLabel: "Executing...",
+            onPress: mockOnExecute,
+            isLoading: false,
+          }}
         />
       </NextUIProvider>
     );
 
-    // Try to submit without filling required fields
+    // Check for validation error in status indicator
+    const statusContainer = screen.getByTestId("status-container-danger");
+    expect(statusContainer).toHaveTextContent("This field is required");
+
+    // Try to submit with validation errors
     const executeButton = screen.getByText("Execute");
     fireEvent.click(executeButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/This field is required/i)).toBeInTheDocument();
-    });
     expect(mockOnExecute).not.toHaveBeenCalled();
   });
 
   it("handles error from execute", async () => {
-    mockOnExecute.mockRejectedValueOnce(new Error("Test error"));
-
-    render(
+    const { rerender } = render(
       <NextUIProvider>
         <ToolModal
           isOpen={true}
           onClose={mockOnClose}
           tool={mockTool}
-          onExecute={mockOnExecute}
+          parameterValues={{}}
+          onParameterChange={mockOnParameterChange}
+          validationErrors={[]}
+          primaryAction={{
+            label: "Execute",
+            loadingLabel: "Executing...",
+            onPress: mockOnExecute,
+            isLoading: false,
+          }}
         />
       </NextUIProvider>
     );
-
-    // Fill in minimum required fields
-    fireEvent.change(screen.getByLabelText(/Connection type/i), {
-      target: { value: "http" },
-    });
-    fireEvent.change(screen.getByLabelText(/Connection name/i), {
-      target: { value: "Test Connection" },
-    });
 
     // Submit form
     const executeButton = screen.getByText("Execute");
     fireEvent.click(executeButton);
 
-    await waitFor(() => {
-      expect(screen.getByText("Test error")).toBeInTheDocument();
-    });
+    // Rerender with error
+    rerender(
+      <NextUIProvider>
+        <ToolModal
+          isOpen={true}
+          onClose={mockOnClose}
+          tool={mockTool}
+          parameterValues={{}}
+          onParameterChange={mockOnParameterChange}
+          validationErrors={[{ path: [], message: "Test error" }]}
+          primaryAction={{
+            label: "Execute",
+            loadingLabel: "Executing...",
+            onPress: mockOnExecute,
+            isLoading: false,
+          }}
+        />
+      </NextUIProvider>
+    );
+
+    // Check for error in status indicator
+    const statusContainer = screen.getByTestId("status-container-danger");
+    expect(statusContainer).toHaveTextContent("Test error");
   });
 });

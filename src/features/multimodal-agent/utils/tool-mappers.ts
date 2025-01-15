@@ -94,20 +94,23 @@ export const mapPropertyType = (
   }
 
   const firstOneOfOption = getFirstValidOption(schema.oneOf);
+  const firstAnyOfOption = getFirstValidOption(schema.anyOf);
   if (firstOneOfOption) {
     return mapPropertyType(firstOneOfOption);
   }
-
-  const firstAnyOfOption = getFirstValidOption(schema.anyOf);
   if (firstAnyOfOption) {
     return mapPropertyType(firstAnyOfOption);
   }
 
   const schemaType = getSchemaType(schema);
+  const properties: Record<
+    string,
+    GeminiPropertyType & { description: string }
+  > = {};
 
   switch (schemaType) {
-    case "string":
-      return { type: SchemaType.STRING };
+    case "boolean":
+      return { type: SchemaType.BOOLEAN };
     case "number":
     case "integer":
       return { type: SchemaType.NUMBER };
@@ -117,96 +120,68 @@ export const mapPropertyType = (
         items: handleSchemaItems(schema.items),
       };
     case "object":
-      if (schema.properties) {
-        const mappedProperties = Object.entries(schema.properties).reduce(
-          (acc, [key, value]) => {
-            if (typeof value === "object" && !value.type && !value.properties) {
-              return acc;
-            }
-
-            // Handle non-object properties
-            if (!isJSONSchema(value) || value.type !== "object") {
-              return {
-                ...acc,
-                [safePropertyName(key)]: {
-                  ...(isJSONSchema(value)
-                    ? mapPropertyType(value)
-                    : { type: SchemaType.STRING }),
-                  description: isJSONSchema(value)
-                    ? value.description || ""
-                    : "",
-                },
-              };
-            }
-
-            // Handle nested objects
-            const nestedProperties = value.properties
-              ? Object.entries(value.properties).reduce(
-                  (nestedAcc, [nestedKey, nestedValue]) => {
-                    // Skip invalid nested properties
-                    if (!isJSONSchema(nestedValue)) {
-                      return nestedAcc;
-                    }
-
-                    // For token property in auth object, handle it specially
-                    if (key === "auth" && nestedKey === "token") {
-                      return {
-                        ...nestedAcc,
-                        safe_token: {
-                          type: SchemaType.STRING,
-                          description: nestedValue.description || "",
-                        },
-                      };
-                    }
-
-                    // For other nested properties
-                    return {
-                      ...nestedAcc,
-                      [safePropertyName(nestedKey)]: {
-                        ...(nestedValue.type === "object" &&
-                        nestedValue.properties
-                          ? mapPropertyType(nestedValue)
-                          : {
-                              type: SchemaType.STRING,
-                              description: nestedValue.description || "",
-                            }),
-                      },
-                    };
-                  },
-                  {}
-                )
-              : {};
-
-            return {
-              ...acc,
-              [key]: {
-                type: SchemaType.OBJECT,
-                description: value.description || "",
-                properties: nestedProperties,
-              },
-            };
-          },
-          {}
-        );
-
+      if (!schema.properties) {
         return {
           type: SchemaType.OBJECT,
-          properties: mappedProperties,
+          properties: {
+            _data: {
+              type: SchemaType.STRING,
+              description: "Generic data field for object",
+            },
+          },
         };
       }
+
+      for (const [key, value] of Object.entries(schema.properties)) {
+        if (isJSONSchema(value)) {
+          // Special handling for auth properties to flatten the structure
+          if (key === "auth" && value.properties) {
+            const authProperties: Record<
+              string,
+              GeminiPropertyType & { description: string }
+            > = {};
+            const authProps = value.properties;
+            for (const [authKey, authValue] of Object.entries(authProps)) {
+              if (isJSONSchema(authValue)) {
+                if (authKey === "token" && authValue.properties) {
+                  // Flatten token properties
+                  for (const [tokenKey, tokenValue] of Object.entries(
+                    authValue.properties
+                  )) {
+                    if (isJSONSchema(tokenValue)) {
+                      authProperties[safePropertyName(tokenKey)] = {
+                        type: SchemaType.STRING,
+                        description: tokenValue.description || "",
+                      };
+                    }
+                  }
+                } else if (!["basic", "cookie"].includes(authKey)) {
+                  authProperties[safePropertyName(authKey)] = {
+                    type: SchemaType.STRING,
+                    description: authValue.description || "",
+                  };
+                }
+              }
+            }
+            properties[key] = {
+              type: SchemaType.OBJECT,
+              properties: authProperties,
+              description: value.description || "",
+            };
+          } else {
+            const propertyType = mapPropertyType(value);
+            properties[safePropertyName(key)] = {
+              ...propertyType,
+              description: value.description || "",
+            };
+          }
+        }
+      }
+
       return {
         type: SchemaType.OBJECT,
-        properties: {
-          _data: {
-            type: SchemaType.STRING,
-            description: "Generic data field for object",
-          },
-        },
+        properties,
       };
-    case "boolean":
-      return { type: SchemaType.BOOLEAN };
-    case "null":
-      return { type: SchemaType.STRING };
     default:
       return { type: SchemaType.STRING };
   }

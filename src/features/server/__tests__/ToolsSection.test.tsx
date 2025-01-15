@@ -204,7 +204,7 @@ describe("ToolsSection", () => {
     fireEvent.click(executeButton);
 
     // Fill in parameters
-    const input = screen.getByTestId("input-param1");
+    const input = screen.getByTestId("tool-param1-input");
     fireEvent.change(input, { target: { value: "test value" } });
 
     // Execute the tool
@@ -233,7 +233,7 @@ describe("ToolsSection", () => {
     // Execute tool
     const executeButton = screen.getByTestId("tool-card-execute-button");
     fireEvent.click(executeButton);
-    const input = screen.getByTestId("input-param1");
+    const input = screen.getByTestId("tool-param1-input");
     fireEvent.change(input, { target: { value: "test value" } });
     const modalExecuteButton = screen.getByTestId("modal-execute-button");
     fireEvent.click(modalExecuteButton);
@@ -286,7 +286,7 @@ describe("ToolsSection", () => {
     // Execute tool
     const executeButton = screen.getByTestId("tool-card-execute-button");
     fireEvent.click(executeButton);
-    const input = screen.getByTestId("input-param1");
+    const input = screen.getByTestId("tool-param1-input");
     fireEvent.change(input, { target: { value: "test value" } });
     const modalExecuteButton = screen.getByTestId("modal-execute-button");
     fireEvent.click(modalExecuteButton);
@@ -326,7 +326,7 @@ describe("ToolsSection", () => {
     await waitFor(() => {
       expect(screen.getByText("Validation Errors")).toBeInTheDocument();
       const errorMessage = screen.getByText((content) =>
-        content.includes("param1 is required")
+        content.includes("param1: This field is required")
       );
       expect(errorMessage).toBeInTheDocument();
     });
