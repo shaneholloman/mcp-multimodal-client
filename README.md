@@ -1,3 +1,16 @@
+> ## ⚠️ Deprecated — no longer maintained
+>
+> This repository has been superseded. All new development and support lives in:
+>
+> - **[systempromptio/systemprompt-template](https://github.com/systempromptio/systemprompt-template)** — start here. Self-hosted evaluation of the full systemprompt.io AI governance infrastructure.
+> - **[systempromptio/systemprompt-core](https://github.com/systempromptio/systemprompt-core)** — the underlying Rust library (MCP, A2A, OAuth 2.1, audit, compile-time extensions).
+>
+> Learn more at [systemprompt.io](https://systemprompt.io).
+>
+> _The original README is preserved below for historical reference._
+
+---
+
 # Systemprompt Multimodal MCP Client
 
 <div align="center">
